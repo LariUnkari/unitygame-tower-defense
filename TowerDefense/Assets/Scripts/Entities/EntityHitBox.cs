@@ -15,7 +15,7 @@ public class EntityHitBox : MonoBehaviour, IEntityLinkable
 
     protected virtual void Awake()
     {
-        IEntity entity = GetComponentInParent<IEntity>();
+        IEntity entity = gameObject.GetComponentInParent<IEntity>();
         if (entity == null)
         {
             DBGLogger.LogError(string.Format("No {0} to link to!", typeof(IEntity)), DBGLogger.Mode.Everything);

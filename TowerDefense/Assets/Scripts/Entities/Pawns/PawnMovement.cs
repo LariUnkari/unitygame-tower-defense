@@ -28,7 +28,7 @@ public class PawnMovement : MonoBehaviour, IEntityLinkable
 
     protected virtual void Awake()
     {
-        Pawn pawn = GetComponent<Pawn>();
+        Pawn pawn = gameObject.GetComponent<Pawn>();
         if (pawn == null)
         {
             DBGLogger.LogError(string.Format("No {0} to link to!", typeof(Pawn)), DBGLogger.Mode.Everything);
@@ -36,6 +36,7 @@ public class PawnMovement : MonoBehaviour, IEntityLinkable
         }
 
         LinkToEntity(pawn);
+        pawn.LinkMovement(this);
     }
 
     protected virtual void Start()

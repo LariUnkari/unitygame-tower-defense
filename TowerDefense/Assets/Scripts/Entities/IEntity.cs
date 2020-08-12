@@ -5,5 +5,6 @@ using UnityEngine;
 public interface IEntity
 {
     string GetObjectName();
+    void OnSpawn();
     void Hit(int damage);
 }
