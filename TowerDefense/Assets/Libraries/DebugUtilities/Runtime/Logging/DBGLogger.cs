@@ -17,27 +17,50 @@ namespace DebugUtilities
         private static int s_lastLogFrame;
         private static int s_logCountFrame;
 
-        public static void Log(string message, object callingObject, UnityEngine.Object context = null, int modeFlags = (int)Mode.TimestampCallerType)
+        public static void Log(string message, object callingObject, UnityEngine.Object context = null, Mode modeFlags = Mode.TimestampCallerType)
         {
             UpdateLogCounter();
             Debug.Log(Format(message, callingObject, modeFlags), context);
         }
 
-        public static void LogWarning(string message, object callingObject, UnityEngine.Object context = null, int modeFlags = (int)Mode.TimestampCallerType)
+        public static void Log(string message, object callingObject, UnityEngine.Object context, int modeMask)
+        {
+            UpdateLogCounter();
+            Debug.Log(Format(message, callingObject, modeMask), context);
+        }
+
+        public static void LogWarning(string message, object callingObject, UnityEngine.Object context = null, Mode modeFlags = Mode.TimestampCallerType)
         {
             UpdateLogCounter();
             Debug.LogWarning(Format(message, callingObject, modeFlags), context);
         }
 
-        public static void LogError(string message, object callingObject, UnityEngine.Object context = null, int modeFlags = (int)Mode.TimestampCallerType)
+        public static void LogWarning(string message, object callingObject, UnityEngine.Object context, int modeMask)
+        {
+            UpdateLogCounter();
+            Debug.LogWarning(Format(message, callingObject, modeMask), context);
+        }
+
+        public static void LogError(string message, object callingObject, UnityEngine.Object context = null, Mode modeFlags = Mode.TimestampCallerType)
         {
             UpdateLogCounter();
             Debug.LogError(Format(message, callingObject, modeFlags), context);
         }
 
-        public static string Format(string message, object callingObject, int modeFlags = (int)Mode.TimestampCallerType)
+        public static void LogError(string message, object callingObject, UnityEngine.Object context, int modeMask)
         {
-            return GetTimeStamp() + " " + GetCallerName(callingObject, modeFlags) + GetCallerType(callingObject, modeFlags) + ": " + message;
+            UpdateLogCounter();
+            Debug.LogError(Format(message, callingObject, modeMask), context);
+        }
+
+        public static string Format(string message, object callingObject, int modeMask = (int)Mode.TimestampCallerType)
+        {
+            return GetTimeStamp() + " " + GetCallerName(callingObject, modeMask) + GetCallerType(callingObject, modeMask) + ": " + message;
+        }
+
+        public static string Format(string message, object callingObject, Mode modeFlags = Mode.TimestampCallerType)
+        {
+            return Format(message, callingObject, (int)modeFlags);
         }
 
         private static string GetTimeStamp()
