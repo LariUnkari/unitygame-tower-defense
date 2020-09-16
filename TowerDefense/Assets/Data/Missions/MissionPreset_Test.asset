@@ -17,19 +17,19 @@ MonoBehaviour:
     playerHealthMax: 1000
   waves:
   - startTime: 1
-    pawnPrefab: {fileID: 8574926503507519028, guid: ee511ed87db39f14e8fe887136b22ae4,
+    pawnPrefab: {fileID: 2863658457050811790, guid: fccf252546dd528439391257403b2017,
       type: 3}
     spawnCount: 4
     spawnInterval: 3
     spawnPathIndex: 0
   - startTime: 15
-    pawnPrefab: {fileID: 8574926503507519028, guid: ee511ed87db39f14e8fe887136b22ae4,
+    pawnPrefab: {fileID: 2863658457050811790, guid: fccf252546dd528439391257403b2017,
       type: 3}
     spawnCount: 5
     spawnInterval: 2
     spawnPathIndex: 0
   - startTime: 25
-    pawnPrefab: {fileID: 8574926503507519028, guid: ee511ed87db39f14e8fe887136b22ae4,
+    pawnPrefab: {fileID: 2863658457050811790, guid: fccf252546dd528439391257403b2017,
       type: 3}
     spawnCount: 8
     spawnInterval: 1

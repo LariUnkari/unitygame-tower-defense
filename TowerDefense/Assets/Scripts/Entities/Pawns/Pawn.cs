@@ -5,7 +5,7 @@ using DebugUtilities;
 
 public class Pawn : MonoBehaviour, IEntity
 {
-    public GameObject m_model;
+    public PawnModel m_model;
     protected PawnMovement m_movement;
     protected AudioSource m_audioSource;
     public AudioClip m_sfxOnSpawned;
@@ -102,9 +102,12 @@ public class Pawn : MonoBehaviour, IEntity
         DBGLogger.LogWarning("Died", this, this);
 
         if (m_model != null)
-            m_model.SetActive(false);
+            m_model.gameObject.SetActive(false);
         if (m_movement != null)
             m_movement.enabled = false;
+        if (m_model != null && m_movement != null)
+            m_model.SetMovementSpeedModifier(m_movement.m_moveSpeed);
+
         if (m_sfxOnDeath != null)
             PlaySFX(m_sfxOnDeath);
 
