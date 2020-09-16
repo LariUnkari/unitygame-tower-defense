@@ -12,16 +12,29 @@ public class Pawn : MonoBehaviour, IEntity
     public AudioClip m_sfxOnDamage;
     public AudioClip m_sfxOnDeath;
 
+    protected bool m_isAlive;
+    protected float m_spawnTime;
+    protected float m_timeAlive;
     public int m_health = 100;
+    public int m_playerDamage = 100;
+
+    public float SpawnTime { get { return m_spawnTime; } }
+    public float TimeAlive { get { return m_timeAlive; } }
 
     private void Awake()
     {
         m_audioSource = gameObject.GetComponent<AudioSource>();
     }
 
-    private void Start()
+    private void Update()
     {
-        OnSpawn();
+        m_timeAlive = MissionManager.GetInstance().MissionTime - m_spawnTime;
+
+        if (m_movement != null)
+        {
+            if (m_movement.ShouldMove())
+                m_movement.MoveOnPath();
+        }
     }
 
     public virtual string GetObjectName()
@@ -34,8 +47,21 @@ public class Pawn : MonoBehaviour, IEntity
         m_movement = movement;
     }
 
-    public virtual void OnSpawn()
+    public virtual void OnSpawned(Map map, int pathIndex, float spawnTime)
     {
+        m_isAlive = true;
+        m_spawnTime = spawnTime;
+
+        if (m_movement != null)
+        {
+            m_movement.SetMap(map);
+            m_movement.SetPath(map.m_paths[pathIndex]);
+
+            Location location = map.GetSpawnLocation(pathIndex);
+            transform.position = location.position;
+            transform.rotation = location.rotation;
+        }
+
         if (m_sfxOnSpawned != null)
             PlaySFX(m_sfxOnSpawned);
     }
@@ -58,19 +84,31 @@ public class Pawn : MonoBehaviour, IEntity
         }
         else
         {
-            OnDeath();
+            Kill();
         }
+    }
+
+    public virtual void Kill()
+    {
+        if (!m_isAlive)
+            return;
+
+        m_isAlive = false;
+        OnDeath();
     }
 
     protected virtual void OnDeath()
     {
         DBGLogger.LogWarning("Died", this, this);
+
         if (m_model != null)
             m_model.SetActive(false);
         if (m_movement != null)
             m_movement.enabled = false;
         if (m_sfxOnDeath != null)
             PlaySFX(m_sfxOnDeath);
+
+        MissionManager.GetInstance().OnEnemyDied(this);
     }
 
     protected virtual void PlaySFX(AudioClip audioClip)

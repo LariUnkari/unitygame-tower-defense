@@ -1,0 +1,36 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0f70c74528edc154b85ecfbbcc300618, type: 3}
+  m_Name: MissionPreset_Test
+  m_EditorClassIdentifier: 
+  settings:
+    difficulty: 1
+    playerHealthMax: 1000
+  waves:
+  - startTime: 1
+    pawnPrefab: {fileID: 8574926503507519028, guid: ee511ed87db39f14e8fe887136b22ae4,
+      type: 3}
+    spawnCount: 4
+    spawnInterval: 3
+    spawnPathIndex: 0
+  - startTime: 15
+    pawnPrefab: {fileID: 8574926503507519028, guid: ee511ed87db39f14e8fe887136b22ae4,
+      type: 3}
+    spawnCount: 5
+    spawnInterval: 2
+    spawnPathIndex: 0
+  - startTime: 25
+    pawnPrefab: {fileID: 8574926503507519028, guid: ee511ed87db39f14e8fe887136b22ae4,
+      type: 3}
+    spawnCount: 8
+    spawnInterval: 1
+    spawnPathIndex: 0

@@ -5,6 +5,7 @@ using UnityEngine;
 public interface IEntity
 {
     string GetObjectName();
-    void OnSpawn();
+    void OnSpawned(Map map, int pathIndex, float spawnTime);
     void Hit(int damage);
+    void Kill();
 }
