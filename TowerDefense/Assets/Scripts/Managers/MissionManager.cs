@@ -125,10 +125,7 @@ public class MissionManager : MonoBehaviour
     private void Update()
     {
         if (m_missionState == MissionState.Active && m_data.playerHealth > 0)
-        {
-            m_data.time += Time.deltaTime;
             m_data.MissionUpdate(Time.deltaTime);
-        }
     }
 
     public void SetMap(Map map)
@@ -154,7 +151,13 @@ public class MissionManager : MonoBehaviour
         {
             timeToNext = m_data.waves[m_data.nextWaveIndex].startTime - m_data.time;
             if (timeToNext > 0f)
+            {
+                DBGLogger.Log(string.Format("Time {0} to start next wave {1} at {2} is {3}!", m_data.time,
+                    m_data.nextWaveIndex, m_data.waves[m_data.nextWaveIndex].startTime, timeToNext),
+                    this, this, DBGLogger.Mode.Everything);
+
                 yield return new WaitForSeconds(timeToNext);
+            }
 
             StartWave(m_data.nextWaveIndex);
             m_data.nextWaveIndex += 1;
@@ -174,7 +177,9 @@ public class MissionManager : MonoBehaviour
         if (m_waveRoutines.Count > 0)
         {
             foreach (Coroutine wave in m_waveRoutines.Values)
-                StopCoroutine(wave);
+            {
+                if (wave != null) StopCoroutine(wave);
+            }
 
             m_waveRoutines.Clear();
         }
@@ -188,16 +193,13 @@ public class MissionManager : MonoBehaviour
         m_data.activeWaveIndex = index;
         MissionWave wave = m_data.waves[index];
         m_waveRoutines.Add(index, StartCoroutine(WaveRoutine(index, wave)));
+
+        DBGLogger.LogWarning(string.Format("Starting wave {0} at time {1}!", index, m_data.time), this, this, DBGLogger.Mode.Everything);
     }
 
     public void EndWave(int index)
     {
-        Coroutine routine;
-        if (m_waveRoutines.TryGetValue(index, out routine))
-        {
-            m_waveRoutines.Remove(index);
-            StopCoroutine(routine);
-        }
+        DBGLogger.LogWarning(string.Format("Ending wave {0} at time {1}!", index, m_data.time), this, this, DBGLogger.Mode.Everything);
     }
 
     public IEnumerator WaveRoutine(int index, MissionWave wave)
