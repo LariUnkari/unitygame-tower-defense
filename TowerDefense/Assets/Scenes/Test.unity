@@ -666,8 +666,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   tangentMode: 0
-  _masterTangent: {fileID: 106844177}
-  _slaveTangent: {fileID: 961906745}
+  _masterTangent: {fileID: 961906745}
+  _slaveTangent: {fileID: 106844177}
 --- !u!137 &167011025
 SkinnedMeshRenderer:
   m_ObjectHideFlags: 2
@@ -1100,8 +1100,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   tangentMode: 0
-  _masterTangent: {fileID: 67195975}
-  _slaveTangent: {fileID: 1588048733}
+  _masterTangent: {fileID: 1588048733}
+  _slaveTangent: {fileID: 67195975}
 --- !u!137 &240920136
 SkinnedMeshRenderer:
   m_ObjectHideFlags: 2
@@ -4162,8 +4162,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   tangentMode: 0
-  _masterTangent: {fileID: 1667513808}
-  _slaveTangent: {fileID: 834278998}
+  _masterTangent: {fileID: 834278998}
+  _slaveTangent: {fileID: 1667513808}
 --- !u!137 &1163027049
 SkinnedMeshRenderer:
   m_ObjectHideFlags: 2
@@ -4456,8 +4456,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   tangentMode: 0
-  _masterTangent: {fileID: 1291390307}
-  _slaveTangent: {fileID: 856859639}
+  _masterTangent: {fileID: 856859639}
+  _slaveTangent: {fileID: 1291390307}
 --- !u!137 &1219115627
 SkinnedMeshRenderer:
   m_ObjectHideFlags: 2
@@ -7449,8 +7449,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   tangentMode: 0
-  _masterTangent: {fileID: 1136930681}
-  _slaveTangent: {fileID: 187946850}
+  _masterTangent: {fileID: 187946850}
+  _slaveTangent: {fileID: 1136930681}
 --- !u!137 &2039646514
 SkinnedMeshRenderer:
   m_ObjectHideFlags: 2
@@ -7662,3 +7662,72 @@ Transform:
   m_Father: {fileID: 610855444}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1001 &2065398317100257007
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 6536443934589887285, guid: 17f58ff9f51921d4693e89cfee4923ed,
+        type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0.28
+      objectReference: {fileID: 0}
+    - target: {fileID: 6536443934589887285, guid: 17f58ff9f51921d4693e89cfee4923ed,
+        type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6536443934589887285, guid: 17f58ff9f51921d4693e89cfee4923ed,
+        type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -0.61
+      objectReference: {fileID: 0}
+    - target: {fileID: 6536443934589887285, guid: 17f58ff9f51921d4693e89cfee4923ed,
+        type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6536443934589887285, guid: 17f58ff9f51921d4693e89cfee4923ed,
+        type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6536443934589887285, guid: 17f58ff9f51921d4693e89cfee4923ed,
+        type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6536443934589887285, guid: 17f58ff9f51921d4693e89cfee4923ed,
+        type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.00000058114523
+      objectReference: {fileID: 0}
+    - target: {fileID: 6536443934589887285, guid: 17f58ff9f51921d4693e89cfee4923ed,
+        type: 3}
+      propertyPath: m_RootOrder
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 6536443934589887285, guid: 17f58ff9f51921d4693e89cfee4923ed,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6536443934589887285, guid: 17f58ff9f51921d4693e89cfee4923ed,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: -180.00002
+      objectReference: {fileID: 0}
+    - target: {fileID: 6536443934589887285, guid: 17f58ff9f51921d4693e89cfee4923ed,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8606074086324096685, guid: 17f58ff9f51921d4693e89cfee4923ed,
+        type: 3}
+      propertyPath: m_Name
+      value: TowerPlaceholder
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 17f58ff9f51921d4693e89cfee4923ed, type: 3}
