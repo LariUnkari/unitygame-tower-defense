@@ -1032,7 +1032,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3a687fbdecc75ba4eb2e4d4a35d3f615, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_damage: 10
+  m_damage: 25
   m_camera: {fileID: 474060219}
   m_scanDistance: 6
   m_hitLayers:
@@ -7682,7 +7682,7 @@ PrefabInstance:
     - target: {fileID: 6536443934589887285, guid: 17f58ff9f51921d4693e89cfee4923ed,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: -0.61
+      value: 0.08
       objectReference: {fileID: 0}
     - target: {fileID: 6536443934589887285, guid: 17f58ff9f51921d4693e89cfee4923ed,
         type: 3}

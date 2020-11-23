@@ -177,7 +177,7 @@ MonoBehaviour:
   m_initDuration: 1
   m_range: 6
   m_damage: 30
-  m_interval: 0.5
+  m_interval: 1.5
   m_sfxOnSpawned: {fileID: 0}
   m_sfxInit: {fileID: 0}
   m_sfxOnInit: {fileID: 0}
