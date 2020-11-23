@@ -19,18 +19,18 @@ MonoBehaviour:
   - startTime: 1
     pawnPrefab: {fileID: 2863658457050811790, guid: fccf252546dd528439391257403b2017,
       type: 3}
-    spawnCount: 4
-    spawnInterval: 3
+    spawnCount: 5
+    spawnInterval: 2
     spawnPathIndex: 0
   - startTime: 15
     pawnPrefab: {fileID: 2863658457050811790, guid: fccf252546dd528439391257403b2017,
       type: 3}
-    spawnCount: 5
-    spawnInterval: 2
+    spawnCount: 10
+    spawnInterval: 1
     spawnPathIndex: 0
   - startTime: 25
-    pawnPrefab: {fileID: 2863658457050811790, guid: fccf252546dd528439391257403b2017,
+    pawnPrefab: {fileID: 2863658457050811790, guid: 356faa42d78ad244ba96d06366d67289,
       type: 3}
-    spawnCount: 8
-    spawnInterval: 1
+    spawnCount: 5
+    spawnInterval: 1.5
     spawnPathIndex: 0
