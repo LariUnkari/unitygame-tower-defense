@@ -2,7 +2,10 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public interface IEntityLinkable
+namespace Entities
 {
-    void LinkToEntity(IEntity entity);
+    public interface IEntityLinkable
+    {
+        void LinkToEntity(IEntity entity);
+    }
 }

@@ -2,10 +2,13 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public interface IEntity
+namespace Entities
 {
-    string GetObjectName();
-    void OnSpawned(Map map, int pathIndex, float spawnTime);
-    void Hit(int damage);
-    void Kill();
+    public interface IEntity
+    {
+        string GetObjectName();
+        void OnSpawned(Map map, int pathIndex, float spawnTime);
+        void Hit(int damage);
+        void Kill();
+    }
 }

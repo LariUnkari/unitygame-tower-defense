@@ -39,9 +39,9 @@ public class ClickShooter : MonoBehaviour
                 DBGLogger.Log(string.Format("Hit {0}<{1}> at {2:F3}",
                     hitInfo.collider.name, hitInfo.collider.GetType(), hitInfo.point), this, this);
 
-                EntityHitBox hitBox = hitInfo.collider.GetComponent<EntityHitBox>();
+                Entities.EntityHitBox hitBox = hitInfo.collider.GetComponent<Entities.EntityHitBox>();
                 if (hitBox == null) {
-                    DBGLogger.LogWarning(string.Format("Target has no {0} component!", typeof(EntityHitBox)), this, this);
+                    DBGLogger.LogWarning(string.Format("Target has no {0} component!", typeof(Entities.EntityHitBox)), this, this);
                     return;
                 }
 

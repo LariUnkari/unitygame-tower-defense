@@ -16,7 +16,7 @@ public class MissionData
     public int playerHealth { get; set; }
 
     private int enemiesAlive;
-    private Dictionary<int, Pawn> enemiesDictionary;
+    private Dictionary<int, Entities.Pawn> enemiesDictionary;
 
     public int EnemiesAlive { get { return enemiesAlive; } }
 
@@ -34,17 +34,17 @@ public class MissionData
         nextWaveIndex = 0;
         playerHealth = settings.playerHealthMax;
         enemiesAlive = 0;
-        enemiesDictionary = new Dictionary<int, Pawn>();
+        enemiesDictionary = new Dictionary<int, Entities.Pawn>();
     }
 
     public void SpawnEnemy(GameObject prefab, int pathIndex, float spawnTime)
     {
         GameObject instance = GameObject.Instantiate(prefab);
-        Pawn pawn = instance.GetComponent<Pawn>();
+        Entities.Pawn pawn = instance.GetComponent<Entities.Pawn>();
 
         if (pawn == null)
         {
-            Debug.LogError(string.Format("Unable to find {0} behaviour on an instance of {1}!", typeof(Pawn), prefab.name));
+            Debug.LogError(string.Format("Unable to find {0} behaviour on an instance of {1}!", typeof(Entities.Pawn), prefab.name));
             Object.Destroy(instance);
             return;
         }
@@ -55,7 +55,7 @@ public class MissionData
         pawn.OnSpawned(map, pathIndex, spawnTime);
     }
 
-    public void RemoveEnemy(Pawn pawn)
+    public void RemoveEnemy(Entities.Pawn pawn)
     {
         if (enemiesDictionary.ContainsKey(pawn.GetInstanceID()))
             enemiesDictionary.Remove(pawn.GetInstanceID());

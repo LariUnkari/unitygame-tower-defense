@@ -203,7 +203,7 @@ public class MissionManager : MonoBehaviour
         EndWave(index);
     }
 
-    public void OnEnemyReachedPathEnd(Pawn enemyPawn)
+    public void OnEnemyReachedPathEnd(Entities.Pawn enemyPawn)
     {
         if (m_missionState == MissionState.Active)
         {
@@ -217,7 +217,7 @@ public class MissionManager : MonoBehaviour
         enemyPawn.Kill();
     }
 
-    public void OnEnemyDied(Pawn enemyPawn)
+    public void OnEnemyDied(Entities.Pawn enemyPawn)
     {
         m_data.RemoveEnemy(enemyPawn);
 
