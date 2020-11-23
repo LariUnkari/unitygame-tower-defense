@@ -8,6 +8,9 @@ TowerDefense/[Tt]emp/
 TowerDefense/obj/
 TowerDefense/.vs/
 
+# Libraries not to upload
+TowerDefense/Assets/Libraries/Pixelplacement/Surge/
+
 # =========================
 # Unity local files
 # =========================
