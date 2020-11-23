@@ -11,7 +11,7 @@ public class GameManager : MonoBehaviour
     {
         if (s_instance == null)
         {
-            GameObject go = GameObject.Instantiate(Resources.Load("GameManager") as GameObject);
+            GameObject go = Instantiate(Resources.Load("GameManager") as GameObject);
             s_instance = go.GetComponent<GameManager>();
 
             if (s_instance == null)

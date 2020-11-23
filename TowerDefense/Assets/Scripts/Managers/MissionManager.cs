@@ -11,7 +11,7 @@ public class MissionManager : MonoBehaviour
     {
         if (s_instance == null)
         {
-            GameObject go = GameObject.Instantiate(Resources.Load("MissionManager") as GameObject);
+            GameObject go = Instantiate(Resources.Load("MissionManager") as GameObject);
             s_instance = go.GetComponent<MissionManager>();
 
             if (s_instance == null)
@@ -40,6 +40,16 @@ public class MissionManager : MonoBehaviour
     public Map Map { get { return m_map; } }
     public MissionState MissionState { get { return m_missionState; } }
     public float MissionTime { get { return m_data.time; } }
+
+    private void OnEnable()
+    {
+        GameEvent.OnTowerSpawned += OnTowerSpawned;
+    }
+
+    private void OnDisable()
+    {
+        GameEvent.OnTowerSpawned -= OnTowerSpawned;
+    }
 
     private void OnDestroy()
     {
@@ -115,7 +125,10 @@ public class MissionManager : MonoBehaviour
     private void Update()
     {
         if (m_missionState == MissionState.Active && m_data.playerHealth > 0)
+        {
             m_data.time += Time.deltaTime;
+            m_data.MissionUpdate(Time.deltaTime);
+        }
     }
 
     public void SetMap(Map map)
@@ -130,6 +143,8 @@ public class MissionManager : MonoBehaviour
         m_data.StartMission();
 
         m_missionRoutine = StartCoroutine(MissionRoutine());
+
+        GameEvent.EmitOnMissionStarted();
     }
 
     public IEnumerator MissionRoutine()
@@ -229,5 +244,15 @@ public class MissionManager : MonoBehaviour
                 EndMission();
             }
         }
+    }
+
+    public ICollection<Entities.Pawn> GetAllEnemies()
+    {
+        return m_data.AllEnemies;
+    }
+
+    private void OnTowerSpawned(Entities.Tower tower)
+    {
+        m_data.OnTowerSpawned(tower);
     }
 }

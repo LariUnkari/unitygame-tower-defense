@@ -1,0 +1,227 @@
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using DebugUtilities;
+
+namespace Entities
+{
+    public class Tower : MonoBehaviour, IEntity
+    {
+        public enum Mode { Init, Idle, Tracking }
+
+        protected Mode m_mode;
+
+        public TowerModel m_model;
+
+        public float m_initDuration = 1;
+        protected float m_spawnTime;
+
+        public float m_range = 6f;
+        protected int m_enemiesInRange;
+        protected Pawn m_target;
+        protected float m_distance;
+
+        public int m_damage = 50;
+        public float m_interval = 1f;
+        protected float m_attackT;
+
+        protected AudioSource m_audioSource;
+        public AudioClip m_sfxOnSpawned;
+        public AudioClip m_sfxInit;
+        public AudioClip m_sfxOnInit;
+        public AudioClip m_sfxIdle;
+        public AudioClip m_sfxOnTargetAcquired;
+        public AudioClip m_sfxTracking;
+
+        private void OnEnable()
+        {
+            GameEvent.OnMissionStarted += OnMissionStarted;
+        }
+
+        private void OnDisable()
+        {
+            GameEvent.OnMissionStarted -= OnMissionStarted;
+        }
+
+        private void Awake()
+        {
+            m_audioSource = gameObject.GetComponent<AudioSource>();
+        }
+
+        public virtual string GetObjectName()
+        {
+            return name;
+        }
+
+        public virtual void OnSpawned(Map map, int pathIndex, float spawnTime)
+        {
+            m_spawnTime = spawnTime;
+
+            if (m_sfxOnSpawned != null)
+                PlaySFX(m_sfxOnSpawned, true);
+
+            StartInit();
+        }
+
+        public void OnMissionUpdate(float deltaTime)
+        {
+            switch (m_mode)
+            {
+                case Mode.Init: OnInitUpdate();
+                    break;
+                case Mode.Tracking: OnTrackingUpdate(deltaTime);
+                    break;
+                default: OnIdleUpdate();
+                    break;
+            }
+
+            if (m_model != null)
+                m_model.OnUpdate(deltaTime);
+        }
+
+        public virtual void StartInit()
+        {
+            m_mode = Mode.Init;
+
+            if (m_sfxInit != null)
+                PlaySFX(m_sfxInit);
+
+            m_model.StartInit();
+        }
+
+        protected virtual void OnInitUpdate()
+        {
+            if (MissionManager.GetInstance().MissionTime > m_spawnTime + m_initDuration)
+            {
+                if (m_sfxOnInit != null)
+                    PlaySFX(m_sfxOnInit, true);
+
+                StartIdle();
+            }
+        }
+
+        public virtual void StartIdle()
+        {
+            m_mode = Mode.Idle;
+            m_target = null;
+
+            if (m_sfxIdle != null)
+                PlaySFX(m_sfxIdle);
+
+            m_model.StartIdle();
+        }
+
+        protected virtual void OnIdleUpdate()
+        {
+            m_enemiesInRange = 0;
+
+            Pawn target = null;
+            float rangeSqr = m_range * m_range;
+            float maxDistSqr = float.MaxValue;
+
+            float distSqr;
+            Vector3 distance;
+            foreach (Pawn pawn in MissionManager.GetInstance().GetAllEnemies())
+            {
+                distance = pawn.transform.position - transform.position;
+                distSqr = distance.sqrMagnitude;
+
+                if (distSqr <= rangeSqr)
+                {
+                    m_enemiesInRange++;
+                    if (distSqr < maxDistSqr)
+                    {
+                        target = pawn;
+                        maxDistSqr = distSqr;
+                    }
+                }
+            }
+
+            if (target != null)
+                StartTracking(target, Mathf.Sqrt(maxDistSqr));
+        }
+
+        public virtual void StartTracking(Pawn target, float distance = -1f)
+        {
+            m_mode = Mode.Tracking;
+            m_target = target;
+            m_distance = distance >= 0 ? distance : (target.transform.position - transform.position).magnitude;
+            m_attackT = 0f;
+
+            if (m_sfxOnTargetAcquired != null)
+                PlaySFX(m_sfxOnTargetAcquired, true);
+
+            if (m_sfxTracking != null)
+                PlaySFX(m_sfxTracking);
+
+            m_model.StartTracking(target.m_trackingPoint != null ? target.m_trackingPoint : target.transform);
+        }
+
+        protected virtual void OnTrackingUpdate(float deltaTime)
+        {
+            if (m_target == null || !m_target.IsAlive || (m_target.transform.position - transform.position).magnitude > m_range)
+            {
+                StartIdle();
+                return;
+            }
+
+            m_attackT += deltaTime / m_interval;
+            if (m_attackT >= 1f)
+            {
+                m_attackT -= 1f;
+                m_model.Attack();
+                m_target.Hit(m_damage);
+            }
+        }
+
+        public virtual void Hit(int damage)
+        {
+
+        }
+
+        public virtual void Kill()
+        {
+
+        }
+
+        protected virtual void OnDeath()
+        {
+
+        }
+
+        protected virtual void PlaySFX(AudioClip audioClip, bool isOneShot = false)
+        {
+            if (m_audioSource == null)
+            {
+                DBGLogger.LogError(string.Format("No {0} component found!", typeof(AudioSource)), this, this);
+                return;
+            }
+
+            if (isOneShot)
+                m_audioSource.PlayOneShot(audioClip);
+            else
+            {
+                m_audioSource.Stop();
+                m_audioSource.clip = audioClip;
+                m_audioSource.Play();
+            }
+        }
+
+        protected virtual void OnMissionStarted()
+        {
+            GameEvent.EmitOnTowerSpawned(this);
+        }
+
+        protected virtual void OnDrawGizmos()
+        {
+            Gizmos.color = Color.white;
+            Gizmos.DrawWireSphere(transform.position, m_range);
+            if (m_target != null)
+            {
+                Gizmos.color = Color.red;
+                Gizmos.DrawLine((m_model != null ? (m_model.m_turretRoot != null ? m_model.m_turretRoot : m_model.transform) : transform).position,
+                    (m_target.m_trackingPoint != null ? m_target.m_trackingPoint : m_target.transform).position);
+            }
+        }
+    }
+}

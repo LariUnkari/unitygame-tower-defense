@@ -8,6 +8,7 @@ namespace Entities
     {
         string GetObjectName();
         void OnSpawned(Map map, int pathIndex, float spawnTime);
+        void OnMissionUpdate(float deltaTime);
         void Hit(int damage);
         void Kill();
     }

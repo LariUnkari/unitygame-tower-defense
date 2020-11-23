@@ -9,6 +9,7 @@ namespace Entities
     {
         public PawnModel m_model;
         protected PawnMovement m_movement;
+
         protected AudioSource m_audioSource;
         public AudioClip m_sfxOnSpawned;
         public AudioClip m_sfxOnDamage;
@@ -20,23 +21,15 @@ namespace Entities
         public int m_health = 100;
         public int m_playerDamage = 100;
 
+        public Transform m_trackingPoint;
+
         public float SpawnTime { get { return m_spawnTime; } }
         public float TimeAlive { get { return m_timeAlive; } }
+        public bool IsAlive { get { return m_isAlive; } }
 
         private void Awake()
         {
             m_audioSource = gameObject.GetComponent<AudioSource>();
-        }
-
-        private void Update()
-        {
-            m_timeAlive = MissionManager.GetInstance().MissionTime - m_spawnTime;
-
-            if (m_movement != null)
-            {
-                if (m_movement.ShouldMove())
-                    m_movement.MoveOnPath();
-            }
         }
 
         public virtual string GetObjectName()
@@ -66,6 +59,17 @@ namespace Entities
 
             if (m_sfxOnSpawned != null)
                 PlaySFX(m_sfxOnSpawned);
+        }
+
+        public void OnMissionUpdate(float deltaTime)
+        {
+            m_timeAlive = MissionManager.GetInstance().MissionTime - m_spawnTime;
+
+            if (m_movement != null)
+            {
+                if (m_movement.ShouldMove())
+                    m_movement.MoveOnPath();
+            }
         }
 
         public virtual void Hit(int damage)

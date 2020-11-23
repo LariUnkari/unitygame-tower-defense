@@ -15,10 +15,14 @@ public class MissionData
 
     public int playerHealth { get; set; }
 
+    private int towersAlive;
+    private Dictionary<int, Entities.Tower> towersDictionary;
+
     private int enemiesAlive;
     private Dictionary<int, Entities.Pawn> enemiesDictionary;
 
     public int EnemiesAlive { get { return enemiesAlive; } }
+    public ICollection<Entities.Pawn> AllEnemies { get { return enemiesDictionary.Values; } }
 
     public MissionData(Map map, MissionSettings settings, List<MissionWave> waves)
     {
@@ -33,8 +37,30 @@ public class MissionData
         activeWaveIndex = -1;
         nextWaveIndex = 0;
         playerHealth = settings.playerHealthMax;
+        towersAlive = 0;
+        towersDictionary = new Dictionary<int, Entities.Tower>();
         enemiesAlive = 0;
         enemiesDictionary = new Dictionary<int, Entities.Pawn>();
+    }
+
+    public void MissionUpdate(float deltaTime)
+    {
+        time += deltaTime;
+
+        foreach (Entities.Pawn pawn in enemiesDictionary.Values)
+            pawn.OnMissionUpdate(deltaTime);
+        foreach (Entities.Tower tower in towersDictionary.Values)
+            tower.OnMissionUpdate(deltaTime);
+    }
+
+    public void OnTowerSpawned(Entities.Tower tower)
+    {
+        int id = tower.GetInstanceID();
+        if (towersDictionary.ContainsKey(id))
+            return;
+
+        towersDictionary.Add(id, tower);
+        towersAlive = towersDictionary.Count;
     }
 
     public void SpawnEnemy(GameObject prefab, int pathIndex, float spawnTime)
