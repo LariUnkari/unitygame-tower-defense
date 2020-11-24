@@ -17,7 +17,6 @@ namespace Entities
         protected float m_spawnTime;
 
         public float m_range = 6f;
-        protected int m_enemiesInRange;
         protected Pawn m_target;
         protected float m_distance;
 
@@ -25,7 +24,7 @@ namespace Entities
         public float m_interval = 1f;
         protected float m_attackT;
 
-        protected AudioSource m_audioSource;
+        public AudioSource m_audioSource;
         public AudioClip m_sfxOnSpawned;
         public AudioClip m_sfxInit;
         public AudioClip m_sfxOnInit;
@@ -41,11 +40,6 @@ namespace Entities
         private void OnDisable()
         {
             GameEvent.OnMissionStarted -= OnMissionStarted;
-        }
-
-        private void Awake()
-        {
-            m_audioSource = gameObject.GetComponent<AudioSource>();
         }
 
         public virtual string GetObjectName()
@@ -113,32 +107,11 @@ namespace Entities
 
         protected virtual void OnIdleUpdate()
         {
-            m_enemiesInRange = 0;
+            SpatialSearch.Result<Pawn> result = SpatialSearch.FindClosest(transform.position, m_range,
+                MissionManager.GetInstance().GetAllEnemies(), (Pawn pawn) => { return pawn.transform; });
 
-            Pawn target = null;
-            float rangeSqr = m_range * m_range;
-            float maxDistSqr = float.MaxValue;
-
-            float distSqr;
-            Vector3 distance;
-            foreach (Pawn pawn in MissionManager.GetInstance().GetAllEnemies())
-            {
-                distance = pawn.transform.position - transform.position;
-                distSqr = distance.sqrMagnitude;
-
-                if (distSqr <= rangeSqr)
-                {
-                    m_enemiesInRange++;
-                    if (distSqr < maxDistSqr)
-                    {
-                        target = pawn;
-                        maxDistSqr = distSqr;
-                    }
-                }
-            }
-
-            if (target != null)
-                StartTracking(target, Mathf.Sqrt(maxDistSqr));
+            if (result.item != null)
+                StartTracking(result.item, result.distance);
         }
 
         public virtual void StartTracking(Pawn target, float distance = -1f)
@@ -159,7 +132,14 @@ namespace Entities
 
         protected virtual void OnTrackingUpdate(float deltaTime)
         {
-            if (m_target == null || !m_target.IsAlive || (m_target.transform.position - transform.position).magnitude > m_range)
+            if (m_target == null || !m_target.IsAlive)
+            {
+                StartIdle();
+                return;
+            }
+
+            m_distance = (m_target.transform.position - transform.position).magnitude;
+            if (m_distance > m_range)
             {
                 StartIdle();
                 return;
@@ -219,7 +199,7 @@ namespace Entities
             if (m_target != null)
             {
                 Gizmos.color = Color.red;
-                Gizmos.DrawLine((m_model != null ? (m_model.m_turretRoot != null ? m_model.m_turretRoot : m_model.transform) : transform).position,
+                Gizmos.DrawLine((m_model != null ? m_model.transform : transform).position,
                     (m_target.m_trackingPoint != null ? m_target.m_trackingPoint : m_target.transform).position);
             }
         }

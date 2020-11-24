@@ -6,66 +6,111 @@ namespace Entities
 {
     public class TowerModel : EntityModel
     {
-        public string m_animParamInitName = "IsInit";
-        protected int m_animParamInitID;
-        public string m_animParamIdleName = "IsIdle";
-        protected int m_animParamIdleID;
-        public string m_animParamTrackingName = "IsTracking";
-        protected int m_animParamTrackingID;
-        public string m_animParamAttackName = "DoAttack";
-        protected int m_animParamAttackID;
+        public Transform m_baseParent;
+        public TowerBaseModel m_baseModel;
+        public Transform m_weaponParent;
+        public TowerWeaponModel m_weaponModel;
 
-        public Transform m_turretRoot;
         private Transform m_trackingTarget;
-
-        public AudioSource m_audioSourceTurret;
-        public AudioClip m_sfxOnAttack;
 
         protected virtual void Awake()
         {
-            m_animParamInitID = Animator.StringToHash(m_animParamInitName);
-            m_animParamIdleID = Animator.StringToHash(m_animParamIdleName);
-            m_animParamTrackingID = Animator.StringToHash(m_animParamTrackingName);
-            m_animParamAttackID = Animator.StringToHash(m_animParamAttackName);
+            if (m_baseModel == null)
+            {
+                TowerBaseModel baseModel = GetComponentInChildren<TowerBaseModel>();
+                if (baseModel != null)
+                    SetBaseModel(baseModel);
+            }
+            else
+            {
+                OnBaseModelSet();
+            }
+
+            if (m_weaponModel == null)
+            {
+                TowerWeaponModel weaponModel = GetComponentInChildren<TowerWeaponModel>();
+                if (weaponModel != null)
+                    SetWeapoModel(weaponModel);
+            }
+            else
+            {
+                OnWeaponModelSet();
+            }
+        }
+
+        public virtual void SetBaseModel(TowerBaseModel baseModel)
+        {
+            m_baseModel = baseModel;
+            TransformHelper.SetParent(baseModel.transform, m_baseParent);
+
+            OnBaseModelSet();
+        }
+
+        protected virtual void OnBaseModelSet()
+        {
+
+        }
+
+        public virtual void SetWeapoModel(TowerWeaponModel weaponModel)
+        {
+            m_weaponModel = weaponModel;
+            TransformHelper.SetParent(weaponModel.transform, m_weaponParent);
+
+            OnWeaponModelSet();
+        }
+
+        protected virtual void OnWeaponModelSet()
+        {
+            if (m_baseModel != null)
+                TransformHelper.SetParent(m_weaponParent, m_baseModel.m_mountWeapon);
+        }
+
+        public override void OnUpdate(float deltaTime)
+        {
+            if (m_baseModel != null)
+                m_baseModel.OnUpdate(deltaTime);
+
+            if (m_weaponModel != null)
+            {
+                m_weaponModel.OnUpdate(deltaTime);
+
+                if (m_trackingTarget != null)
+                    m_weaponModel.LookAt(m_trackingTarget.position);
+            }
         }
 
         public void StartInit()
         {
             m_trackingTarget = null;
 
-            if (m_animator != null)
-                m_animator.SetTrigger(m_animParamInitID);
+            if (m_baseModel != null)
+                m_baseModel.StartInit();
+            if (m_weaponModel != null)
+                m_weaponModel.StartInit();
         }
 
         public void StartIdle()
         {
             m_trackingTarget = null;
 
-            if (m_animator != null)
-                m_animator.SetTrigger(m_animParamIdleID);
+            if (m_baseModel != null)
+                m_baseModel.StartIdle();
+            if (m_weaponModel != null)
+                m_weaponModel.StartIdle();
         }
 
         public void StartTracking(Transform target)
         {
             m_trackingTarget = target;
 
-            if (m_animator != null)
-                m_animator.SetTrigger(m_animParamTrackingID);
+            if (m_weaponModel != null)
+                m_weaponModel.StartCharging();
         }
 
         public void Attack()
         {
-            if (m_animator != null)
-                m_animator.SetTrigger(m_animParamAttackID);
-
-            if (m_audioSourceTurret != null && m_sfxOnAttack != null)
-                m_audioSourceTurret.PlayOneShot(m_sfxOnAttack);
-        }
-
-        public override void OnUpdate(float deltaTime)
-        {
-            if (m_turretRoot != null && m_trackingTarget != null)
-                m_turretRoot.LookAt(m_trackingTarget);
+            if (m_weaponModel != null)
+                m_weaponModel.Attack();
         }
     }
 }

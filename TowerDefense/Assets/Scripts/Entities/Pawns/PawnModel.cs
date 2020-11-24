@@ -6,6 +6,7 @@ namespace Entities
 {
     public class PawnModel : EntityModel
     {
+        public Animator m_animator;
         public float m_runAnimationVelocity = 5f;
         private float m_runSpeedModifier;
 
