@@ -24,6 +24,12 @@ namespace Entities
         public float m_interval = 1f;
         protected float m_attackT;
 
+        public GameObject m_muzzleFlashVFXPrefab;
+        public AudioClip m_muzzleFlashSFXClip;
+        public float m_muzzleFlashScale = 1;
+        public float m_muzzleFlashTime = 0.1f;
+        public bool m_shootAllMuzzles = false;
+
         public AudioSource m_audioSource;
         public AudioClip m_sfxOnSpawned;
         public AudioClip m_sfxInit;
@@ -40,6 +46,15 @@ namespace Entities
         private void OnDisable()
         {
             GameEvent.OnMissionStarted -= OnMissionStarted;
+        }
+
+        protected virtual void Start()
+        {
+            if (m_model != null && m_model.m_weaponModel != null)
+            {
+                m_model.m_weaponModel.SetMuzzleFlash(m_muzzleFlashSFXClip, m_muzzleFlashVFXPrefab,
+                    m_muzzleFlashScale, m_muzzleFlashTime, m_shootAllMuzzles);
+            }
         }
 
         public virtual string GetObjectName()

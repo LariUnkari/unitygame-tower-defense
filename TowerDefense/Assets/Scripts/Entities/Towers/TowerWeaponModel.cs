@@ -19,8 +19,19 @@ namespace Entities
         public string m_animParamAttackName = "DoAttack";
         protected int m_animParamAttackID;
 
+        protected bool m_shootAllMuzzles = false;
+
+        public Transform[] m_muzzles;
+        protected GameObject[] m_muzzleFlashVFXs;
+
+        protected GameObject m_muzzleVFXPrefab;
+        protected float m_muzzleVFXScale = 1;
+        protected float m_muzzleVFXTime = 0.2f;
+
+        protected int m_nextMuzzleIndex;
+
         public AudioSource m_audioSource;
-        public AudioClip m_sfxOnAttack;
+        protected AudioClip m_sfxOnAttack;
 
         protected virtual void Awake()
         {
@@ -29,11 +40,35 @@ namespace Entities
             m_animParamChargingID = Animator.StringToHash(m_animParamChargingName);
             m_animParamChargedID = Animator.StringToHash(m_animParamChargedName);
             m_animParamAttackID = Animator.StringToHash(m_animParamAttackName);
+
+            m_nextMuzzleIndex = m_muzzles.Length > 0 ? 0 : -1;
+
         }
 
         public override void OnUpdate(float deltaTime)
         {
 
+        }
+
+        public virtual void SetMuzzleFlash(AudioClip sfxClip, GameObject vfxPrefab, float vfxScale, float vfxTime, bool shootAllMuzzles)
+        {
+            m_sfxOnAttack = sfxClip;
+            m_muzzleVFXPrefab = vfxPrefab;
+
+            if (m_muzzleVFXPrefab)
+            {
+                m_muzzleFlashVFXs = new GameObject[m_muzzles.Length];
+
+                GameObject go;
+                for (int i = 0; i < m_muzzles.Length; i++)
+                {
+                    go = Instantiate(m_muzzleVFXPrefab);
+                    TransformHelper.SetParent(go.transform, m_muzzles[i]);
+                    go.transform.localScale = Vector3.one * m_muzzleVFXScale;
+                    m_muzzleFlashVFXs[i] = go;
+                    go.SetActive(false);
+                }
+            }
         }
 
         public virtual void StartInit()
@@ -72,6 +107,31 @@ namespace Entities
 
             if (m_sfxOnAttack != null)
                 PlaySFX(m_sfxOnAttack);
+
+            if (m_muzzleVFXPrefab != null)
+                PlayMuzzleVFX();
+        }
+
+        protected virtual void PlayMuzzleVFX()
+        {
+            if (m_shootAllMuzzles)
+            {
+                for (m_nextMuzzleIndex = 0; m_nextMuzzleIndex < m_muzzleFlashVFXs.Length; m_nextMuzzleIndex++)
+                    StartCoroutine(MuzzleFlashRoutine(m_nextMuzzleIndex, m_muzzleVFXTime));
+            }
+            else
+            {
+                StartCoroutine(MuzzleFlashRoutine(m_nextMuzzleIndex++, m_muzzleVFXTime));
+                if (m_nextMuzzleIndex >= m_muzzleFlashVFXs.Length)
+                    m_nextMuzzleIndex = 0;
+            }
+        }
+
+        protected IEnumerator MuzzleFlashRoutine(int index, float time)
+        {
+            if (m_muzzleFlashVFXs[index] != null) m_muzzleFlashVFXs[index].SetActive(true);
+            yield return new WaitForSeconds(time);
+            if (m_muzzleFlashVFXs[index] != null) m_muzzleFlashVFXs[index].SetActive(false);
         }
 
         protected virtual void PlaySFX(AudioClip audioClip)
