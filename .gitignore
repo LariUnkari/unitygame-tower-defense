@@ -8,8 +8,11 @@ TowerDefense/[Tt]emp/
 TowerDefense/obj/
 TowerDefense/.vs/
 
-# Libraries not to upload
+# Libraries or AssetStore assets not to upload
+TowerDefense/Assets/Libraries/FuturisticGunSoundFX/
 TowerDefense/Assets/Libraries/Pixelplacement/Surge/
+TowerDefense/Assets/Libraries/Toon Muzzleflash Pack/
+TowerDefense/Assets/Libraries/Turret/
 
 # =========================
 # Unity local files
