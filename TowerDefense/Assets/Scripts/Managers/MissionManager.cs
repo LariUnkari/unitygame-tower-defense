@@ -43,12 +43,12 @@ public class MissionManager : MonoBehaviour
 
     private void OnEnable()
     {
-        GameEvent.OnTowerSpawned += OnTowerSpawned;
+        EventManager.OnTowerSpawned += OnTowerSpawned;
     }
 
     private void OnDisable()
     {
-        GameEvent.OnTowerSpawned -= OnTowerSpawned;
+        EventManager.OnTowerSpawned -= OnTowerSpawned;
     }
 
     private void OnDestroy()
@@ -141,7 +141,7 @@ public class MissionManager : MonoBehaviour
 
         m_missionRoutine = StartCoroutine(MissionRoutine());
 
-        GameEvent.EmitOnMissionStarted();
+        EventManager.EmitOnMissionStarted();
     }
 
     public IEnumerator MissionRoutine()

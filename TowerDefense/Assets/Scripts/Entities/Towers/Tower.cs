@@ -40,12 +40,12 @@ namespace Entities
 
         private void OnEnable()
         {
-            GameEvent.OnMissionStarted += OnMissionStarted;
+            EventManager.OnMissionStarted += OnMissionStarted;
         }
 
         private void OnDisable()
         {
-            GameEvent.OnMissionStarted -= OnMissionStarted;
+            EventManager.OnMissionStarted -= OnMissionStarted;
         }
 
         protected virtual void Start()
@@ -204,7 +204,7 @@ namespace Entities
 
         protected virtual void OnMissionStarted()
         {
-            GameEvent.EmitOnTowerSpawned(this);
+            EventManager.EmitOnTowerSpawned(this);
         }
 
         protected virtual void OnDrawGizmos()
