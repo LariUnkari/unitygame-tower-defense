@@ -140,6 +140,21 @@ public class TransformHelper
     #endregion
 
     /// <summary>
+    /// Sets the provided Transform object to the target.
+    /// </summary>
+    /// <param name="transform">Object to align</param>
+    /// <param name="target">Target to align to</param>
+    /// <param name="matchScale">If false, scale is left untouched</param>
+    public static void Align(Transform transform, Transform target, bool matchScale = false)
+    {
+        transform.position = target.position;
+        transform.rotation = target.rotation;
+
+        if (matchScale)
+            transform.localScale = target.localScale;
+    }
+
+    /// <summary>
     /// Sets the target Transform under the specified parent.
     /// Also optionally resets target transform parameters as a child.
     /// </summary>
