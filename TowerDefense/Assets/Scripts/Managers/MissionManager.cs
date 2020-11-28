@@ -44,11 +44,13 @@ public class MissionManager : MonoBehaviour
     private void OnEnable()
     {
         EventManager.OnTowerSpawned += OnTowerSpawned;
+        EventManager.OnProjectileSpawned += OnProjectileSpawned;
     }
 
     private void OnDisable()
     {
         EventManager.OnTowerSpawned -= OnTowerSpawned;
+        EventManager.OnProjectileSpawned -= OnProjectileSpawned;
     }
 
     private void OnDestroy()
@@ -231,7 +233,7 @@ public class MissionManager : MonoBehaviour
             }
         }
 
-        enemyPawn.Kill();
+        enemyPawn.Kill(new Entities.Damage(-1, null, null));
     }
 
     public void OnEnemyDied(Entities.Pawn enemyPawn)
@@ -256,5 +258,10 @@ public class MissionManager : MonoBehaviour
     private void OnTowerSpawned(Entities.Tower tower)
     {
         m_data.OnTowerSpawned(tower);
+    }
+
+    private void OnProjectileSpawned(Entities.Projectile projectile)
+    {
+        m_data.OnProjectileSpawned(projectile);
     }
 }

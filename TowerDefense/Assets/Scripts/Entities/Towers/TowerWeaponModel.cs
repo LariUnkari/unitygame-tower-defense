@@ -52,8 +52,11 @@ namespace Entities
 
         public virtual void SetMuzzleFlash(AudioClip sfxClip, GameObject vfxPrefab, float vfxScale, float vfxTime, bool shootAllMuzzles)
         {
+            m_shootAllMuzzles = shootAllMuzzles;
             m_sfxOnAttack = sfxClip;
             m_muzzleVFXPrefab = vfxPrefab;
+            m_muzzleVFXScale = vfxScale;
+            m_muzzleVFXTime = vfxTime;
 
             if (m_muzzleVFXPrefab)
             {
@@ -100,7 +103,7 @@ namespace Entities
             transform.LookAt(position);
         }
 
-        public virtual void Attack()
+        public virtual void Attack(GameObject projectilePrefab, ProjectileSettings settings)
         {
             if (m_animator != null)
                 m_animator.SetTrigger(m_animParamAttackID);
@@ -108,23 +111,50 @@ namespace Entities
             if (m_sfxOnAttack != null)
                 PlaySFX(m_sfxOnAttack);
 
-            if (m_muzzleVFXPrefab != null)
-                PlayMuzzleVFX();
-        }
-
-        protected virtual void PlayMuzzleVFX()
-        {
             if (m_shootAllMuzzles)
             {
                 for (m_nextMuzzleIndex = 0; m_nextMuzzleIndex < m_muzzleFlashVFXs.Length; m_nextMuzzleIndex++)
-                    StartCoroutine(MuzzleFlashRoutine(m_nextMuzzleIndex, m_muzzleVFXTime));
+                {
+                    if (projectilePrefab)
+                        FireProjectile(m_muzzles[m_nextMuzzleIndex], projectilePrefab, settings);
+                    if (m_muzzleVFXPrefab != null)
+                        PlayMuzzleVFX(m_nextMuzzleIndex);
+                }
             }
             else
             {
-                StartCoroutine(MuzzleFlashRoutine(m_nextMuzzleIndex++, m_muzzleVFXTime));
-                if (m_nextMuzzleIndex >= m_muzzleFlashVFXs.Length)
+                if (projectilePrefab)
+                    FireProjectile(m_muzzles[m_nextMuzzleIndex], projectilePrefab, settings);
+                if (m_muzzleVFXPrefab != null)
+                    PlayMuzzleVFX(m_nextMuzzleIndex);
+
+                if (++m_nextMuzzleIndex >= m_muzzleFlashVFXs.Length)
                     m_nextMuzzleIndex = 0;
             }
+        }
+
+        protected virtual void FireProjectile(Transform muzzle, GameObject projectilePrefab, ProjectileSettings settings)
+        {
+            GameObject go = Instantiate(projectilePrefab);
+            Projectile projectile = go.GetComponent<Projectile>();
+            if (projectile == null)
+            {
+                DBGLogger.LogError(string.Format("Unable to find component of type {0} in prefab '{1}'",
+                    typeof(Projectile), projectilePrefab.name), this, this, DBGLogger.Mode.Everything);
+
+                Destroy(go);
+                return;
+            }
+
+            TransformHelper.Align(projectile.transform, muzzle);
+
+            projectile.OnSpawned(MissionManager.GetInstance().MissionTime);
+            projectile.Init(settings);
+        }
+
+        protected virtual void PlayMuzzleVFX(int muzzleIndex)
+        {
+            StartCoroutine(MuzzleFlashRoutine(muzzleIndex, m_muzzleVFXTime));
         }
 
         protected IEnumerator MuzzleFlashRoutine(int index, float time)

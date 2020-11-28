@@ -45,7 +45,7 @@ public class ClickShooter : MonoBehaviour
                     return;
                 }
 
-                hitBox.Hit(m_damage);
+                hitBox.Hit(new Entities.Damage(m_damage, null, null));
             }
             else
             {

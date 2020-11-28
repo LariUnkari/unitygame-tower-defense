@@ -16,6 +16,8 @@ namespace Entities
         public float m_initDuration = 1;
         protected float m_spawnTime;
 
+        public LayerMask m_hitMask;
+
         public float m_range = 6f;
         protected Pawn m_target;
         protected float m_distance;
@@ -23,6 +25,10 @@ namespace Entities
         public int m_damage = 50;
         public float m_interval = 1f;
         protected float m_attackT;
+
+        public GameObject m_projectilePrefab;
+        public float m_projectileSpeed = 10f;
+        public float m_projectileLifetime = 1f;
 
         public GameObject m_muzzleFlashVFXPrefab;
         public AudioClip m_muzzleFlashSFXClip;
@@ -62,7 +68,7 @@ namespace Entities
             return name;
         }
 
-        public virtual void OnSpawned(Map map, int pathIndex, float spawnTime)
+        public virtual void OnSpawned(float spawnTime)
         {
             m_spawnTime = spawnTime;
 
@@ -164,24 +170,25 @@ namespace Entities
             if (m_attackT >= 1f)
             {
                 m_attackT -= 1f;
-                m_model.Attack();
-                m_target.Hit(m_damage);
+                m_model.Attack(m_projectilePrefab, new ProjectileSettings(m_hitMask, m_damage, m_projectileLifetime, m_projectileSpeed));
             }
         }
 
-        public virtual void Hit(int damage)
+        public virtual void OnHit(Damage damage)
         {
-
+            DBGLogger.LogWarning(string.Format("Hit by {0} via for damage from {1} by {2}",
+                damage.amount, damage.source.GetObjectName(), damage.instigator.GetObjectName()), this, this);
         }
 
-        public virtual void Kill()
+        public virtual void Kill(Damage damage)
         {
-
+            OnDeath(damage);
         }
 
-        protected virtual void OnDeath()
+        protected virtual void OnDeath(Damage damage)
         {
-
+            DBGLogger.LogWarning(string.Format("Died due to {0} damage from {1} via {2}",
+                damage.amount, damage.source, damage.instigator), this, this);
         }
 
         protected virtual void PlaySFX(AudioClip audioClip, bool isOneShot = false)

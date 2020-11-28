@@ -8,7 +8,6 @@ namespace Entities
 {
     public class PawnMovement : MonoBehaviour, IEntityLinkable
     {
-        protected IEntity m_linkedEntity;
         protected Pawn m_pawn;
         protected float m_timeAlive;
 
@@ -25,13 +24,7 @@ namespace Entities
         protected float m_pathLookAtDistance;
         protected float m_pathLookAtLength;
 
-        public void LinkToEntity(IEntity entity)
-        {
-            m_linkedEntity = entity;
-            DBGLogger.Log(string.Format("Linked to entity {0}<{1}>", entity.GetObjectName(), entity.GetType()), this, this);
-
-            m_pawn = (Pawn)entity;
-        }
+        public IEntity Entity { get { return m_pawn; } }
 
         protected virtual void Awake()
         {
@@ -54,6 +47,12 @@ namespace Entities
                 m_pathLength = m_pathSpline.Length;
                 DBGLogger.Log(string.Format("Path distance set to {0:F3}", m_pathLength), this, this);
             }
+        }
+
+        public void LinkToEntity(IEntity entity)
+        {
+            m_pawn = (Pawn)entity;
+            DBGLogger.Log(string.Format("Linked to entity {0}<{1}>", entity.GetObjectName(), entity.GetType()), this, this);
         }
 
         public void SetMap(Map map)

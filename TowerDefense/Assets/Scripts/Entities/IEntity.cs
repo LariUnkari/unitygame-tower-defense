@@ -7,9 +7,9 @@ namespace Entities
     public interface IEntity
     {
         string GetObjectName();
-        void OnSpawned(Map map, int pathIndex, float spawnTime);
+        void OnSpawned(float spawnTime);
         void OnMissionUpdate(float deltaTime);
-        void Hit(int damage);
-        void Kill();
+        void OnHit(Damage damage);
+        void Kill(Damage damage);
     }
 }

@@ -9,6 +9,8 @@ namespace Entities
     {
         protected IEntity m_linkedEntity;
 
+        public IEntity Entity { get { return m_linkedEntity; } }
+
         public void LinkToEntity(IEntity entity)
         {
             m_linkedEntity = entity;
@@ -27,7 +29,7 @@ namespace Entities
             LinkToEntity(entity);
         }
 
-        public void Hit(int damage)
+        public void Hit(Damage damage)
         {
             if (m_linkedEntity == null)
             {
@@ -36,7 +38,7 @@ namespace Entities
                 return;
             }
 
-            m_linkedEntity.Hit(damage);
+            m_linkedEntity.OnHit(damage);
         }
     }
 }

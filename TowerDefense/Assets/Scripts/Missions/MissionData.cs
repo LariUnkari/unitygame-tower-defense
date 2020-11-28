@@ -18,6 +18,9 @@ public class MissionData
     private int towersAlive;
     private Dictionary<int, Entities.Tower> towersDictionary;
 
+    private int projectilesAlive;
+    private Dictionary<int, Entities.Projectile> projectilesDictionary;
+
     private int enemiesAlive;
     private Dictionary<int, Entities.Pawn> enemiesDictionary;
 
@@ -39,6 +42,8 @@ public class MissionData
         playerHealth = settings.playerHealthMax;
         towersAlive = 0;
         towersDictionary = new Dictionary<int, Entities.Tower>();
+        projectilesAlive = 0;
+        projectilesDictionary = new Dictionary<int, Entities.Projectile>();
         enemiesAlive = 0;
         enemiesDictionary = new Dictionary<int, Entities.Pawn>();
     }
@@ -51,6 +56,8 @@ public class MissionData
             pawn.OnMissionUpdate(deltaTime);
         foreach (Entities.Tower tower in towersDictionary.Values)
             tower.OnMissionUpdate(deltaTime);
+        foreach (Entities.Projectile projectile in projectilesDictionary.Values)
+            projectile.OnMissionUpdate(deltaTime);
     }
 
     public void OnTowerSpawned(Entities.Tower tower)
@@ -61,6 +68,16 @@ public class MissionData
 
         towersDictionary.Add(id, tower);
         towersAlive = towersDictionary.Count;
+    }
+
+    public void OnProjectileSpawned(Entities.Projectile projectile)
+    {
+        int id = projectile.GetInstanceID();
+        if (projectilesDictionary.ContainsKey(id))
+            return;
+
+        projectilesDictionary.Add(id, projectile);
+        projectilesAlive = projectilesDictionary.Count;
     }
 
     public void SpawnEnemy(GameObject prefab, int pathIndex, float spawnTime)
@@ -78,7 +95,8 @@ public class MissionData
         enemiesAlive = enemiesDictionary.Count;
         enemiesDictionary.Add(pawn.GetInstanceID(), pawn);
 
-        pawn.OnSpawned(map, pathIndex, spawnTime);
+        pawn.OnSpawned(spawnTime);
+        pawn.SetPath(map, pathIndex);
     }
 
     public void RemoveEnemy(Entities.Pawn pawn)

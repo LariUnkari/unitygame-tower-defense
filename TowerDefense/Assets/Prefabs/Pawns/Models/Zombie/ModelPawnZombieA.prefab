@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 4667995329477675107}
   - component: {fileID: 3562239604040396692}
   - component: {fileID: 6211721023880816193}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Capsule
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1218,8 +1218,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: abf3fe83b30a3d846a6baea6b4aa7a55, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_animator: {fileID: 4617855004449997705}
   m_modelScale: 0.25
+  m_animator: {fileID: 4617855004449997705}
   m_runAnimationVelocity: 6
 --- !u!95 &4617855004449997705
 Animator:

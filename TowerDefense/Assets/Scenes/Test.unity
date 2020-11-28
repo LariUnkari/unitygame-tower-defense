@@ -1459,7 +1459,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 385074165}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: -0.2, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 647511590}
@@ -8033,6 +8033,11 @@ PrefabInstance:
       propertyPath: m_weaponModel
       value: 
       objectReference: {fileID: 2089936673369280349}
+    - target: {fileID: 2874170637738695304, guid: 44ded620f5d1ee446b6e7a37dca04324,
+        type: 3}
+      propertyPath: m_projectileSpeed
+      value: 20
+      objectReference: {fileID: 0}
     - target: {fileID: 4765285891004495525, guid: 44ded620f5d1ee446b6e7a37dca04324,
         type: 3}
       propertyPath: m_LocalPosition.x

@@ -10,4 +10,7 @@ public class EventManager
 
     public static event Action<Entities.Tower> OnTowerSpawned;
     public static void EmitOnTowerSpawned(Entities.Tower tower) { OnTowerSpawned(tower); }
+
+    public static event Action<Entities.Projectile> OnProjectileSpawned;
+    public static void EmitOnProjectileSpawned(Entities.Projectile projectile) { OnProjectileSpawned(projectile); }
 }

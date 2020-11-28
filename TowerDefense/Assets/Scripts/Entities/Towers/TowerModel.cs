@@ -107,10 +107,10 @@ namespace Entities
                 m_weaponModel.StartCharging();
         }
 
-        public void Attack()
+        public void Attack(GameObject projectilePrefab, ProjectileSettings settings)
         {
             if (m_weaponModel != null)
-                m_weaponModel.Attack();
+                m_weaponModel.Attack(projectilePrefab, settings);
         }
     }
 }

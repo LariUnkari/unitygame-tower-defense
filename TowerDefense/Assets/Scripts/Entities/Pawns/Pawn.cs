@@ -42,11 +42,17 @@ namespace Entities
             m_movement = movement;
         }
 
-        public virtual void OnSpawned(Map map, int pathIndex, float spawnTime)
+        public virtual void OnSpawned(float spawnTime)
         {
             m_isAlive = true;
             m_spawnTime = spawnTime;
 
+            if (m_sfxOnSpawned != null)
+                PlaySFX(m_sfxOnSpawned);
+        }
+
+        public virtual void SetPath(Map map, int pathIndex)
+        {
             if (m_movement != null)
             {
                 m_movement.SetMap(map);
@@ -56,9 +62,6 @@ namespace Entities
                 transform.position = location.position;
                 transform.rotation = location.rotation;
             }
-
-            if (m_sfxOnSpawned != null)
-                PlaySFX(m_sfxOnSpawned);
         }
 
         public void OnMissionUpdate(float deltaTime)
@@ -72,16 +75,13 @@ namespace Entities
             }
         }
 
-        public virtual void Hit(int damage)
+        public virtual void OnHit(Damage damage)
         {
-            ApplyDamage(damage);
-        }
+            DBGLogger.LogWarning(string.Format("Hit by {0} via for damage from {1} by {2}", damage.amount,
+                damage.source != null ? damage.source.GetObjectName() : "NULL",
+                damage.instigator != null ? damage.instigator.GetObjectName() : "NULL"), this, this);
 
-        protected virtual void ApplyDamage(int damage)
-        {
-            m_health -= damage;
-            DBGLogger.Log(string.Format("Applied {0} damage, current health is {1}",
-                damage, m_health), this, this);
+            ApplyDamage(damage.amount);
 
             if (m_health > 0)
             {
@@ -90,22 +90,31 @@ namespace Entities
             }
             else
             {
-                Kill();
+                Kill(damage);
             }
         }
 
-        public virtual void Kill()
+        protected virtual void ApplyDamage(int damage)
+        {
+            m_health -= damage;
+            DBGLogger.Log(string.Format("Applied {0} damage, current health is {1}",
+                damage, m_health), this, this);
+        }
+
+        public virtual void Kill(Damage damage)
         {
             if (!m_isAlive)
                 return;
 
             m_isAlive = false;
-            OnDeath();
+            OnDeath(damage);
         }
 
-        protected virtual void OnDeath()
+        protected virtual void OnDeath(Damage damage)
         {
-            DBGLogger.LogWarning("Died", this, this);
+            DBGLogger.LogWarning(string.Format("Died due to {0} damage from {1} by {2}", damage.amount,
+                damage.source != null ? damage.source.GetObjectName() : "NULL",
+                damage.instigator != null ? damage.instigator.GetObjectName() : "NULL"), this, this);
 
             if (m_model != null)
                 m_model.gameObject.SetActive(false);

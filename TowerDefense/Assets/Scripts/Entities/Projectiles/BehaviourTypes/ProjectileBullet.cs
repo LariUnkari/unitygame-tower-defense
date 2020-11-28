@@ -4,9 +4,8 @@ using UnityEngine;
 
 namespace Entities
 {
-    public interface IEntityLinkable
+    public class ProjectileBullet : Projectile
     {
-        IEntity Entity { get; }
-        void LinkToEntity(IEntity entity);
+        
     }
 }
