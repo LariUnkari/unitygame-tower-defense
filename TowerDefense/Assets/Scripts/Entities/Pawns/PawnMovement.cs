@@ -20,10 +20,6 @@ namespace Entities
         protected float m_pathDistanceMoved;
         protected float m_pathLengthMoved;
 
-        public float m_lookAheadDistance = 0.1f;
-        protected float m_pathLookAtDistance;
-        protected float m_pathLookAtLength;
-
         public IEntity Entity { get { return m_pawn; } }
 
         protected virtual void Awake()
@@ -74,14 +70,9 @@ namespace Entities
         {
             m_pathDistanceMoved = m_moveSpeed * m_pawn.TimeAlive;
             m_pathLengthMoved = m_pathDistanceMoved / m_pathLength;
-            transform.position = m_pathSpline.GetPosition(m_pathLengthMoved, true);
 
-            if (m_pathLengthMoved < 1f - m_lookAheadDistance)
-            {
-                m_pathLookAtDistance = m_pathDistanceMoved + m_lookAheadDistance;
-                m_pathLookAtLength = m_pathLookAtDistance / m_pathLength;
-                transform.LookAt(m_pathSpline.GetPosition(m_pathLookAtLength, true), Vector3.up);
-            }
+            transform.position = m_pathSpline.GetPosition(m_pathLengthMoved, true);
+            transform.LookAt(transform.position + m_pathSpline.GetDirection(m_pathLengthMoved, true), Vector3.up);
 
             if (m_pathLengthMoved >= 1f)
             {
