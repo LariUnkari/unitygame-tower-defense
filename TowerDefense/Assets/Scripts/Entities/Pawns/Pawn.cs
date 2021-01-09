@@ -21,11 +21,11 @@ namespace Entities
         public int m_health = 100;
         public int m_playerDamage = 100;
 
-        public Transform m_trackingPoint;
-
         public float SpawnTime { get { return m_spawnTime; } }
         public float TimeAlive { get { return m_timeAlive; } }
         public bool IsAlive { get { return m_isAlive; } }
+
+        public Vector3 TrackingPoint { get { return m_model.m_mainCollider != null ? m_model.m_mainCollider.bounds.center : transform.position; }  }
 
         private void Awake()
         {

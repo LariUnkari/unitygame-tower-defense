@@ -44,6 +44,9 @@ namespace Entities
         public AudioClip m_sfxOnTargetAcquired;
         public AudioClip m_sfxTracking;
 
+        public Pawn Target { get { return m_target; } }
+        public Vector3 TrackingTarget { get { return m_target != null ? m_target.TrackingPoint : Vector3.zero; } }
+
         private void OnEnable()
         {
             EventManager.OnMissionStarted += OnMissionStarted;
@@ -52,6 +55,11 @@ namespace Entities
         private void OnDisable()
         {
             EventManager.OnMissionStarted -= OnMissionStarted;
+        }
+
+        protected virtual void Awake()
+        {
+            m_model.LinkToEntity(this);
         }
 
         protected virtual void Start()
@@ -139,7 +147,7 @@ namespace Entities
         {
             m_mode = Mode.Tracking;
             m_target = target;
-            m_distance = distance >= 0 ? distance : (target.transform.position - transform.position).magnitude;
+            m_distance = distance >= 0 ? distance : (m_target.transform.position - transform.position).magnitude;
             m_attackT = 0f;
 
             if (m_sfxOnTargetAcquired != null)
@@ -148,7 +156,7 @@ namespace Entities
             if (m_sfxTracking != null)
                 PlaySFX(m_sfxTracking);
 
-            m_model.StartTracking(target.m_trackingPoint != null ? target.m_trackingPoint : target.transform);
+            m_model.StartTracking();
         }
 
         protected virtual void OnTrackingUpdate(float deltaTime)
@@ -170,7 +178,7 @@ namespace Entities
             if (m_attackT >= 1f)
             {
                 m_attackT -= 1f;
-                m_model.Attack(m_projectilePrefab, new ProjectileSettings(m_hitMask, m_damage, m_projectileLifetime, m_projectileSpeed));
+                m_model.Attack(m_projectilePrefab, m_target.TrackingPoint, new ProjectileSettings(m_hitMask, m_damage, m_projectileLifetime, m_projectileSpeed));
             }
         }
 
@@ -221,8 +229,7 @@ namespace Entities
             if (m_target != null)
             {
                 Gizmos.color = Color.red;
-                Gizmos.DrawLine((m_model != null ? m_model.transform : transform).position,
-                    (m_target.m_trackingPoint != null ? m_target.m_trackingPoint : m_target.transform).position);
+                Gizmos.DrawLine((m_model != null ? m_model.transform : transform).position, m_target.TrackingPoint);
             }
         }
     }

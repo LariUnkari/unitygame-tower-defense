@@ -1221,6 +1221,7 @@ MonoBehaviour:
   m_modelScale: 0.25
   m_animator: {fileID: 4617855004449997705}
   m_runAnimationVelocity: 6
+  m_mainCollider: {fileID: 3562239604040396692}
 --- !u!95 &4617855004449997705
 Animator:
   serializedVersion: 3

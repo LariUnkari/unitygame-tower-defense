@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using DebugUtilities;
 
 namespace Entities
 {
@@ -11,7 +12,20 @@ namespace Entities
         public Transform m_weaponParent;
         public TowerWeaponModel m_weaponModel;
 
-        private Transform m_trackingTarget;
+        public Tower Tower { get; set; }
+        public override IEntity Entity { get { return Tower; } }
+
+        public override void LinkToEntity(IEntity entity)
+        {
+            Tower = (Tower)entity;
+            DBGLogger.Log(string.Format("Linked to entity {0}<{1}>", entity.GetObjectName(), entity.GetType()), this, this);
+
+            if (m_baseModel != null)
+                m_baseModel.LinkToEntity(Tower);
+            if (m_weaponModel != null)
+                m_weaponModel.LinkToEntity(Tower);
+        }
+
 
         protected virtual void Awake()
         {
@@ -48,7 +62,7 @@ namespace Entities
 
         protected virtual void OnBaseModelSet()
         {
-
+            
         }
 
         public virtual void SetWeapoModel(TowerWeaponModel weaponModel)
@@ -74,15 +88,13 @@ namespace Entities
             {
                 m_weaponModel.OnUpdate(deltaTime);
 
-                if (m_trackingTarget != null)
-                    m_weaponModel.LookAt(m_trackingTarget.position);
+                if (Tower.Target != null)
+                    m_weaponModel.LookAt(Tower.TrackingTarget);
             }
         }
 
         public void StartInit()
         {
-            m_trackingTarget = null;
-
             if (m_baseModel != null)
                 m_baseModel.StartInit();
             if (m_weaponModel != null)
@@ -91,26 +103,22 @@ namespace Entities
 
         public void StartIdle()
         {
-            m_trackingTarget = null;
-
             if (m_baseModel != null)
                 m_baseModel.StartIdle();
             if (m_weaponModel != null)
                 m_weaponModel.StartIdle();
         }
 
-        public void StartTracking(Transform target)
+        public void StartTracking()
         {
-            m_trackingTarget = target;
-
             if (m_weaponModel != null)
                 m_weaponModel.StartCharging();
         }
 
-        public void Attack(GameObject projectilePrefab, ProjectileSettings settings)
+        public void Attack(GameObject projectilePrefab, Vector3 target, ProjectileSettings settings)
         {
             if (m_weaponModel != null)
-                m_weaponModel.Attack(projectilePrefab, settings);
+                m_weaponModel.Attack(projectilePrefab, target, settings);
         }
     }
 }

@@ -10,7 +10,7 @@ PrefabInstance:
     - target: {fileID: 4617855004442751049, guid: bb71d664fc74c9c419a7b66d95304293,
         type: 3}
       propertyPath: m_Name
-      value: ModelPawnZombieC
+      value: ModelPawnZombieC Variant
       objectReference: {fileID: 0}
     - target: {fileID: 4617855004443044969, guid: bb71d664fc74c9c419a7b66d95304293,
         type: 3}
@@ -72,5 +72,16 @@ PrefabInstance:
       propertyPath: m_Materials.Array.data[0]
       value: 
       objectReference: {fileID: 2100000, guid: e21740aa72049da49ab58bb9bfc321e0, type: 2}
+    - target: {fileID: 4739660576951036999, guid: bb71d664fc74c9c419a7b66d95304293,
+        type: 3}
+      propertyPath: m_mainCollider
+      value: 
+      objectReference: {fileID: 2123412021333901538}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: bb71d664fc74c9c419a7b66d95304293, type: 3}
+--- !u!136 &2123412021333901538 stripped
+CapsuleCollider:
+  m_CorrespondingSourceObject: {fileID: 3562239604040396692, guid: bb71d664fc74c9c419a7b66d95304293,
+    type: 3}
+  m_PrefabInstance: {fileID: 3177362038049550198}
+  m_PrefabAsset: {fileID: 0}

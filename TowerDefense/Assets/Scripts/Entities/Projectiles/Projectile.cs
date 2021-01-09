@@ -34,6 +34,11 @@ namespace Entities
             return name;
         }
 
+        protected virtual void Awake()
+        {
+            m_model.LinkToEntity(this);
+        }
+
         public virtual void OnSpawned(float spawnTime)
         {
             m_isAlive = true;

@@ -33,6 +33,15 @@ namespace Entities
         public AudioSource m_audioSource;
         protected AudioClip m_sfxOnAttack;
 
+        public Tower Tower { get; set; }
+        public override IEntity Entity { get { return Tower; } }
+
+        public override void LinkToEntity(IEntity entity)
+        {
+            Tower = (Tower)entity;
+            DBGLogger.Log(string.Format("Linked to entity {0}<{1}>", entity.GetObjectName(), entity.GetType()), this, this);
+        }
+
         protected virtual void Awake()
         {
             m_animParamInitID = Animator.StringToHash(m_animParamInitName);
@@ -103,7 +112,7 @@ namespace Entities
             transform.LookAt(position);
         }
 
-        public virtual void Attack(GameObject projectilePrefab, ProjectileSettings settings)
+        public virtual void Attack(GameObject projectilePrefab, Vector3 target, ProjectileSettings settings)
         {
             if (m_animator != null)
                 m_animator.SetTrigger(m_animParamAttackID);
@@ -116,7 +125,7 @@ namespace Entities
                 for (m_nextMuzzleIndex = 0; m_nextMuzzleIndex < m_muzzleFlashVFXs.Length; m_nextMuzzleIndex++)
                 {
                     if (projectilePrefab)
-                        FireProjectile(m_muzzles[m_nextMuzzleIndex], projectilePrefab, settings);
+                        FireProjectile(m_muzzles[m_nextMuzzleIndex], target, projectilePrefab, settings);
                     if (m_muzzleVFXPrefab != null)
                         PlayMuzzleVFX(m_nextMuzzleIndex);
                 }
@@ -124,7 +133,7 @@ namespace Entities
             else
             {
                 if (projectilePrefab)
-                    FireProjectile(m_muzzles[m_nextMuzzleIndex], projectilePrefab, settings);
+                    FireProjectile(m_muzzles[m_nextMuzzleIndex], target, projectilePrefab, settings);
                 if (m_muzzleVFXPrefab != null)
                     PlayMuzzleVFX(m_nextMuzzleIndex);
 
@@ -133,7 +142,7 @@ namespace Entities
             }
         }
 
-        protected virtual void FireProjectile(Transform muzzle, GameObject projectilePrefab, ProjectileSettings settings)
+        protected virtual void FireProjectile(Transform muzzle, Vector3 target, GameObject projectilePrefab, ProjectileSettings settings)
         {
             GameObject go = Instantiate(projectilePrefab);
             Projectile projectile = go.GetComponent<Projectile>();
@@ -147,6 +156,7 @@ namespace Entities
             }
 
             TransformHelper.Align(projectile.transform, muzzle);
+            projectile.transform.LookAt(target);
 
             projectile.OnSpawned(MissionManager.GetInstance().MissionTime);
             projectile.Init(settings);
