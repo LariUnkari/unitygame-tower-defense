@@ -26,6 +26,7 @@ namespace Entities
         public bool IsAlive { get { return m_isAlive; } }
 
         public Vector3 TrackingPoint { get { return m_model.m_mainCollider != null ? m_model.m_mainCollider.bounds.center : transform.position; }  }
+        public Vector3 Velocity { get { return m_movement != null ? m_movement.m_moveSpeed * transform.forward : Vector3.zero; } }
 
         private void Awake()
         {
@@ -66,6 +67,9 @@ namespace Entities
 
         public void OnMissionUpdate(float deltaTime)
         {
+            if (!enabled || !gameObject.activeInHierarchy)
+                return;
+
             m_timeAlive = MissionManager.GetInstance().MissionTime - m_spawnTime;
 
             if (m_movement != null)

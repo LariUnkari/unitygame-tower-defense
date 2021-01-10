@@ -22,6 +22,7 @@ namespace Entities
         protected bool m_shootAllMuzzles = false;
 
         public Transform[] m_muzzles;
+        protected Vector3 m_muzzleLocalCenterPoint;
         protected GameObject[] m_muzzleFlashVFXs;
 
         protected GameObject m_muzzleVFXPrefab;
@@ -32,6 +33,8 @@ namespace Entities
 
         public AudioSource m_audioSource;
         protected AudioClip m_sfxOnAttack;
+
+        public Vector3 TrackingPoint { get { return transform.TransformPoint(m_muzzleLocalCenterPoint); } }
 
         public Tower Tower { get; set; }
         public override IEntity Entity { get { return Tower; } }
@@ -52,6 +55,16 @@ namespace Entities
 
             m_nextMuzzleIndex = m_muzzles.Length > 0 ? 0 : -1;
 
+            if (m_muzzles.Length == 0)
+                m_muzzleLocalCenterPoint = Vector3.zero;
+            else if (m_muzzles.Length == 1)
+                m_muzzleLocalCenterPoint = transform.InverseTransformPoint(m_muzzles[0].position);
+            else
+            {
+                for (int i = 0; i < m_muzzles.Length; i++)
+                    m_muzzleLocalCenterPoint += m_muzzles[i].position;
+                m_muzzleLocalCenterPoint = transform.InverseTransformPoint(m_muzzleLocalCenterPoint / m_muzzles.Length);
+            }
         }
 
         public override void OnUpdate(float deltaTime)
@@ -112,6 +125,11 @@ namespace Entities
             transform.LookAt(position);
         }
 
+        public Transform GetNextMuzzle()
+        {
+            return m_muzzles[m_nextMuzzleIndex];
+        }
+
         public virtual void Attack(GameObject projectilePrefab, Vector3 target, ProjectileSettings settings)
         {
             if (m_animator != null)
@@ -125,7 +143,7 @@ namespace Entities
                 for (m_nextMuzzleIndex = 0; m_nextMuzzleIndex < m_muzzleFlashVFXs.Length; m_nextMuzzleIndex++)
                 {
                     if (projectilePrefab)
-                        FireProjectile(m_muzzles[m_nextMuzzleIndex], target, projectilePrefab, settings);
+                        FireProjectile(GetNextMuzzle(), target, projectilePrefab, settings);
                     if (m_muzzleVFXPrefab != null)
                         PlayMuzzleVFX(m_nextMuzzleIndex);
                 }
@@ -133,7 +151,7 @@ namespace Entities
             else
             {
                 if (projectilePrefab)
-                    FireProjectile(m_muzzles[m_nextMuzzleIndex], target, projectilePrefab, settings);
+                    FireProjectile(GetNextMuzzle(), target, projectilePrefab, settings);
                 if (m_muzzleVFXPrefab != null)
                     PlayMuzzleVFX(m_nextMuzzleIndex);
 
