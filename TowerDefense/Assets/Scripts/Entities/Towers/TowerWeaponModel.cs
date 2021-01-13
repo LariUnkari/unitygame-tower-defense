@@ -114,6 +114,11 @@ namespace Entities
                 m_animator.SetTrigger(m_animParamChargingID);
         }
 
+        public virtual void StartTracking()
+        {
+
+        }
+
         public virtual void SetCharged()
         {
             if (m_animator != null)

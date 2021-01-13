@@ -84,16 +84,10 @@ MonoBehaviour:
   m_animParamChargingName: IsCharging
   m_animParamChargedName: IsCharged
   m_animParamAttackName: DoAttack
-  m_muzzleFlashPrefab: {fileID: 3522443384207584229, guid: 592eeb7198817e34989b8b478905e1eb,
-    type: 3}
-  m_muzzleFlashScale: 1
-  m_muzzleFlashTime: 0.1
   m_muzzles:
   - {fileID: 8099202700051678417}
   - {fileID: 5527737376896608304}
-  m_shootAllMuzzles: 0
   m_audioSource: {fileID: 6308266377362217708}
-  m_sfxOnAttack: {fileID: 8300000, guid: 321c57076d528934aa5e2ed5eb2798ce, type: 3}
 --- !u!1 &5631404505191369716
 GameObject:
   m_ObjectHideFlags: 0

@@ -11,32 +11,11 @@ namespace Entities
 
         protected Mode m_mode;
 
-        public TowerModel m_model;
-
         public float m_initDuration = 1;
         protected float m_spawnTime;
 
-        public LayerMask m_hitMask;
-
-        public float m_range = 6f;
-        protected Pawn m_targetPawn;
-        protected Vector3 m_targetPosition;
-        protected float m_targetDistance;
-        protected float m_targetTimeToIntercept;
-
-        public int m_damage = 50;
-        public float m_interval = 1f;
-        protected float m_attackT;
-
-        public GameObject m_projectilePrefab;
-        public float m_projectileSpeed = 10f;
-        public float m_projectileLifetime = 1f;
-
-        public GameObject m_muzzleFlashVFXPrefab;
-        public AudioClip m_muzzleFlashSFXClip;
-        public float m_muzzleFlashScale = 1;
-        public float m_muzzleFlashTime = 0.1f;
-        public bool m_shootAllMuzzles = false;
+        public TowerBaseModel m_baseModel;
+        public TowerWeapon m_weapon;
 
         public AudioSource m_audioSource;
         public AudioClip m_sfxOnSpawned;
@@ -45,9 +24,6 @@ namespace Entities
         public AudioClip m_sfxIdle;
         public AudioClip m_sfxOnTargetAcquired;
         public AudioClip m_sfxTracking;
-
-        public Pawn Target { get { return m_targetPawn; } }
-        public Vector3 TrackingTarget { get { return m_targetPawn != null ? m_targetPawn.TrackingPoint : Vector3.zero; } }
 
         private void OnEnable()
         {
@@ -61,21 +37,48 @@ namespace Entities
 
         protected virtual void Awake()
         {
-            m_model.LinkToEntity(this);
+            if (m_baseModel) OnBaseModelSet();
+            if (m_weapon) OnWeaponSet();
         }
 
         protected virtual void Start()
         {
-            if (m_model != null && m_model.m_weaponModel != null)
-            {
-                m_model.m_weaponModel.SetMuzzleFlash(m_muzzleFlashSFXClip, m_muzzleFlashVFXPrefab,
-                    m_muzzleFlashScale, m_muzzleFlashTime, m_shootAllMuzzles);
-            }
+
         }
 
         public virtual string GetObjectName()
         {
             return name;
+        }
+
+        public virtual void SetBaseModel(TowerBaseModel baseModel)
+        {
+            m_baseModel = baseModel;
+            OnBaseModelSet();
+        }
+
+        protected virtual void OnBaseModelSet()
+        {
+            TransformHelper.SetParent(m_baseModel.transform, transform);
+            m_baseModel.LinkToEntity(this);
+            if (m_weapon) MountWeapon();
+        }
+
+        public virtual void SetWeapon(TowerWeapon weapon)
+        {
+            m_weapon = weapon;
+            OnWeaponSet();
+        }
+
+        protected virtual void OnWeaponSet()
+        {
+            m_weapon.LinkToEntity(this);
+            if (m_baseModel) MountWeapon();
+        }
+
+        protected virtual void MountWeapon()
+        {
+            TransformHelper.SetParent(m_weapon.transform, m_baseModel.m_mountWeapon != null ? m_baseModel.m_mountWeapon : transform);
         }
 
         public virtual void OnSpawned(float spawnTime)
@@ -103,8 +106,10 @@ namespace Entities
                     break;
             }
 
-            if (m_model != null)
-                m_model.OnUpdate(deltaTime);
+            if (m_baseModel != null)
+                m_baseModel.OnUpdate(deltaTime);
+            if (m_weapon != null)
+                m_weapon.OnUpdate(deltaTime);
         }
 
         public virtual void StartInit()
@@ -114,7 +119,7 @@ namespace Entities
             if (m_sfxInit != null)
                 PlaySFX(m_sfxInit);
 
-            m_model.StartInit();
+            m_baseModel.StartInit();
         }
 
         protected virtual void OnInitUpdate()
@@ -131,75 +136,36 @@ namespace Entities
         public virtual void StartIdle()
         {
             m_mode = Mode.Idle;
-            m_targetPawn = null;
 
             if (m_sfxIdle != null)
                 PlaySFX(m_sfxIdle);
 
-            m_model.StartIdle();
+            m_baseModel.StartIdle();
+            m_weapon.StartIdle();
         }
 
         protected virtual void OnIdleUpdate()
         {
-            SpatialSearch.Result<Pawn> result = SpatialSearch.FindClosest(transform.position, m_range,
-                MissionManager.GetInstance().GetAllEnemies(), (Pawn pawn) => { return pawn.transform; });
+            if (m_weapon != null)
+            {
+                SpatialSearch.Result<Pawn> result = SpatialSearch.FindClosest(transform.position, m_weapon.m_range,
+                    MissionManager.GetInstance().GetAllEnemies(), (Pawn pawn) => { return pawn.transform; });
 
-            if (result.item != null)
-                StartTracking(result.item, result.distance);
-        }
-
-        protected Vector3 GetTrackingPosition()
-        {
-            return m_model != null ? (m_model.m_weaponModel != null ? m_model.m_weaponModel.TrackingPoint : m_model.transform.position) : transform.position;
-        }
-
-        protected void UpdateTargetingSolution()
-        {
-            Vector3 pos = GetTrackingPosition();
-            if (Math3D.TryGetInterception(pos, Vector3.zero, m_projectileSpeed, m_targetPawn.TrackingPoint, m_targetPawn.Velocity, 0.001f, out m_targetPosition, out m_targetTimeToIntercept))
-                m_targetDistance = (m_targetPosition - pos).magnitude;
-            else
-                m_targetDistance = -1f;
+                if (result.item != null)
+                    StartTracking(result.item, result.distance);
+            }
         }
 
         public virtual void StartTracking(Pawn target, float distance = -1f)
         {
             m_mode = Mode.Tracking;
-            m_targetPawn = target;
-            UpdateTargetingSolution();
-            m_attackT = 0f;
 
-            if (m_sfxOnTargetAcquired != null)
-                PlaySFX(m_sfxOnTargetAcquired, true);
-
-            if (m_sfxTracking != null)
-                PlaySFX(m_sfxTracking);
-
-            m_model.StartTracking();
+            m_weapon.StartTracking(target, distance);
         }
 
         protected virtual void OnTrackingUpdate(float deltaTime)
         {
-            if (m_targetPawn == null || !m_targetPawn.IsAlive)
-            {
-                StartIdle();
-                return;
-            }
-
-            UpdateTargetingSolution();
-
-            if (m_targetDistance > m_range)
-            {
-                StartIdle();
-                return;
-            }
-
-            m_attackT += deltaTime / m_interval;
-            if (m_attackT >= 1f)
-            {
-                m_attackT -= 1f;
-                m_model.Attack(m_projectilePrefab, m_targetPosition, new ProjectileSettings(m_hitMask, m_damage, m_projectileLifetime, m_projectileSpeed));
-            }
+            m_weapon.OnTrackingUpdate(deltaTime);
         }
 
         public virtual void OnHit(Damage damage)
@@ -219,7 +185,7 @@ namespace Entities
                 damage.amount, damage.source, damage.instigator), this, this);
         }
 
-        protected virtual void PlaySFX(AudioClip audioClip, bool isOneShot = false)
+        public virtual void PlaySFX(AudioClip audioClip, bool isOneShot = false)
         {
             if (m_audioSource == null)
             {
@@ -240,23 +206,6 @@ namespace Entities
         protected virtual void OnMissionStarted()
         {
             EventManager.EmitOnTowerSpawned(this);
-        }
-
-        protected virtual void OnDrawGizmos()
-        {
-            Gizmos.color = Color.white;
-            Gizmos.DrawWireSphere(transform.position, m_range);
-            if (m_targetPawn != null)
-            {
-                Vector3 pos = GetTrackingPosition();
-
-                Gizmos.color = Color.red;
-                Gizmos.DrawLine(pos, m_targetPawn.TrackingPoint);
-                Gizmos.color = Color.white;
-                Gizmos.DrawLine(pos, m_targetPosition);
-                Gizmos.color = Color.blue;
-                Gizmos.DrawLine(m_targetPawn.TrackingPoint, m_targetPosition);
-            }
         }
     }
 }
