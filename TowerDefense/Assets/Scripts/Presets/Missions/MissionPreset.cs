@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "New MissionPreset.asset", menuName = "ScriptableObject/MissionPreset")]
+[CreateAssetMenu(fileName = "New MissionPreset.asset", menuName = "ScriptableObject/Presets/MissionPreset")]
 public class MissionPreset : ScriptableObject
 {
     public MissionSettings settings;

@@ -25,24 +25,26 @@ namespace Entities
         protected Vector3 m_muzzleLocalCenterPoint;
         protected GameObject[] m_muzzleFlashVFXs;
 
-        protected GameObject m_muzzleVFXPrefab;
-        protected float m_muzzleVFXScale = 1;
-        protected float m_muzzleVFXTime = 0.2f;
-
         protected int m_nextMuzzleIndex;
 
         public AudioSource m_audioSource;
-        protected AudioClip m_sfxOnAttack;
 
         public Vector3 TrackingPoint { get { return transform.TransformPoint(m_muzzleLocalCenterPoint); } }
 
         public Tower Tower { get; set; }
+        public TowerWeapon Weapon { get; set; }
         public override IEntity Entity { get { return Tower; } }
 
         public override void LinkToEntity(IEntity entity)
         {
             Tower = (Tower)entity;
             DBGLogger.Log(string.Format("Linked to entity {0}<{1}>", entity.GetObjectName(), entity.GetType()), this, this);
+        }
+
+        public virtual void LinkToWeapon(TowerWeapon weapon)
+        {
+            Weapon = weapon;
+            InitMuzzleFlash(weapon.m_muzzleEffects.flashVFXPrefab);
         }
 
         protected virtual void Awake()
@@ -72,27 +74,23 @@ namespace Entities
 
         }
 
-        public virtual void SetMuzzleFlash(AudioClip sfxClip, GameObject vfxPrefab, float vfxScale, float vfxTime, bool shootAllMuzzles)
+        public virtual void SetShootAllMuzzles(bool shootAll)
         {
-            m_shootAllMuzzles = shootAllMuzzles;
-            m_sfxOnAttack = sfxClip;
-            m_muzzleVFXPrefab = vfxPrefab;
-            m_muzzleVFXScale = vfxScale;
-            m_muzzleVFXTime = vfxTime;
+            m_shootAllMuzzles = shootAll;
+        }
 
-            if (m_muzzleVFXPrefab)
+        public virtual void InitMuzzleFlash(GameObject vfxPrefab)
+        {
+            m_muzzleFlashVFXs = new GameObject[m_muzzles.Length];
+
+            GameObject go;
+            for (int i = 0; i < m_muzzles.Length; i++)
             {
-                m_muzzleFlashVFXs = new GameObject[m_muzzles.Length];
-
-                GameObject go;
-                for (int i = 0; i < m_muzzles.Length; i++)
-                {
-                    go = Instantiate(m_muzzleVFXPrefab);
-                    TransformHelper.SetParent(go.transform, m_muzzles[i]);
-                    go.transform.localScale = Vector3.one * m_muzzleVFXScale;
-                    m_muzzleFlashVFXs[i] = go;
-                    go.SetActive(false);
-                }
+                go = Instantiate(vfxPrefab);
+                TransformHelper.SetParent(go.transform, m_muzzles[i]);
+                go.transform.localScale = Vector3.one * Weapon.m_muzzleEffects.flashScale;
+                m_muzzleFlashVFXs[i] = go;
+                go.SetActive(false);
             }
         }
 
@@ -140,8 +138,8 @@ namespace Entities
             if (m_animator != null)
                 m_animator.SetTrigger(m_animParamAttackID);
 
-            if (m_sfxOnAttack != null)
-                PlaySFX(m_sfxOnAttack);
+            if (Weapon.m_muzzleEffects.flashSFXClip != null)
+                PlaySFX(Weapon.m_muzzleEffects.flashSFXClip);
 
             if (m_shootAllMuzzles)
             {
@@ -149,7 +147,7 @@ namespace Entities
                 {
                     if (projectilePrefab)
                         FireProjectile(GetNextMuzzle(), target, projectilePrefab, settings);
-                    if (m_muzzleVFXPrefab != null)
+                    if (Weapon.m_muzzleEffects.flashVFXPrefab != null)
                         PlayMuzzleVFX(m_nextMuzzleIndex);
                 }
             }
@@ -157,7 +155,7 @@ namespace Entities
             {
                 if (projectilePrefab)
                     FireProjectile(GetNextMuzzle(), target, projectilePrefab, settings);
-                if (m_muzzleVFXPrefab != null)
+                if (Weapon.m_muzzleEffects.flashVFXPrefab != null)
                     PlayMuzzleVFX(m_nextMuzzleIndex);
 
                 if (++m_nextMuzzleIndex >= m_muzzleFlashVFXs.Length)
@@ -187,7 +185,7 @@ namespace Entities
 
         protected virtual void PlayMuzzleVFX(int muzzleIndex)
         {
-            StartCoroutine(MuzzleFlashRoutine(muzzleIndex, m_muzzleVFXTime));
+            StartCoroutine(MuzzleFlashRoutine(muzzleIndex, Weapon.m_muzzleEffects.flashTime));
         }
 
         protected IEnumerator MuzzleFlashRoutine(int index, float time)

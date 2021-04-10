@@ -7,29 +7,22 @@ namespace Entities
 {
     public class TowerWeapon : MonoBehaviour, IEntityLinkable
     {
-        public TowerWeaponModel m_model;
+        public TowerWeaponModel m_weaponModel;
 
         public LayerMask m_hitMask;
 
-        public float m_range = 6f;
+        public TowerWeaponAttributes m_attributes = new TowerWeaponAttributes(5f, 10, 0.2f, 10f, 1f, false);
+
         protected Pawn m_targetPawn;
         protected Vector3 m_targetPosition;
         protected float m_targetDistance;
         protected float m_targetTimeToIntercept;
 
-        public int m_damage = 50;
-        public float m_interval = 1f;
         protected float m_attackT;
 
         public GameObject m_projectilePrefab;
-        public float m_projectileSpeed = 10f;
-        public float m_projectileLifetime = 1f;
 
-        public GameObject m_muzzleFlashVFXPrefab;
-        public AudioClip m_muzzleFlashSFXClip;
-        public float m_muzzleFlashScale = 1;
-        public float m_muzzleFlashTime = 0.1f;
-        public bool m_shootAllMuzzles = false;
+        public MuzzleEffectsPreset m_muzzleEffects;
 
         public AudioClip m_sfxOnTargetAcquired;
         public AudioClip m_sfxTracking;
@@ -45,42 +38,61 @@ namespace Entities
             Tower = (Tower)entity;
             DBGLogger.Log(string.Format("Linked to entity {0}<{1}>", entity.GetObjectName(), entity.GetType()), this, this);
 
-            if (m_model != null)
-            {
-                m_model.SetMuzzleFlash(m_muzzleFlashSFXClip, m_muzzleFlashVFXPrefab,
-                    m_muzzleFlashScale, m_muzzleFlashTime, m_shootAllMuzzles);
-            }
+            if (m_weaponModel != null)
+                m_weaponModel.LinkToWeapon(this);
+        }
+
+        public virtual void SetFromPreset(TowerWeaponPreset weaponPreset)
+        {
+            m_hitMask = weaponPreset.hitMask;
+            m_attributes = weaponPreset.attributes;
+            m_projectilePrefab = weaponPreset.projectilePrefab;
+            m_muzzleEffects = weaponPreset.muzzleEffects;
+            m_sfxOnTargetAcquired = weaponPreset.sfxOnTargetAcquired;
+            m_sfxTracking = weaponPreset.sfxTracking;
+        }
+
+        public virtual void SetWeaponModel(TowerWeaponModel weaponModel)
+        {
+            m_weaponModel = weaponModel;
+            if (m_weaponModel != null) OnWeaponModelSet();
+        }
+
+        protected virtual void OnWeaponModelSet()
+        {
+            TransformHelper.SetParent(m_weaponModel.transform, transform);
+            if (Tower) m_weaponModel.LinkToEntity(Tower);
         }
 
         public void StartInit()
         {
-            if (m_model != null)
-                m_model.StartInit();
+            if (m_weaponModel != null)
+                m_weaponModel.StartInit();
         }
 
         public void StartIdle()
         {
             m_targetPawn = null;
 
-            if (m_model != null)
-                m_model.StartIdle();
+            if (m_weaponModel != null)
+                m_weaponModel.StartIdle();
         }
 
         public virtual void OnUpdate(float deltaTime)
         {
-            if (m_model != null)
+            if (m_weaponModel != null)
             {
-                m_model.OnUpdate(deltaTime);
+                m_weaponModel.OnUpdate(deltaTime);
 
                 if (Target != null)
-                    m_model.LookAt(TrackingTarget);
+                    m_weaponModel.LookAt(TrackingTarget);
             }
         }
 
         public void StartTracking(Pawn target, float distance = -1f)
         {
-            if (m_model != null)
-                m_model.StartCharging();
+            if (m_weaponModel != null)
+                m_weaponModel.StartCharging();
 
             m_targetPawn = target;
             UpdateTargetingSolution();
@@ -92,7 +104,7 @@ namespace Entities
             if (m_sfxTracking != null)
                 Tower.PlaySFX(m_sfxTracking);
 
-            m_model.StartTracking();
+            m_weaponModel.StartTracking();
         }
 
         public virtual void OnTrackingUpdate(float deltaTime)
@@ -106,29 +118,29 @@ namespace Entities
 
             UpdateTargetingSolution();
 
-            if (m_targetDistance > m_range)
+            if (m_targetDistance > m_attributes.range)
             {
                 StartIdle();
                 return;
             }
 
-            m_attackT += deltaTime / m_interval;
+            m_attackT += deltaTime / m_attributes.interval;
             if (m_attackT >= 1f)
             {
                 m_attackT -= 1f;
-                m_model.Attack(m_projectilePrefab, m_targetPosition, new ProjectileSettings(m_hitMask, m_damage, m_projectileLifetime, m_projectileSpeed));
+                m_weaponModel.Attack(m_projectilePrefab, m_targetPosition, new ProjectileSettings(m_hitMask, m_attributes.damage, m_attributes.projectileLifetime, m_attributes.projectileSpeed));
             }
         }
 
         protected Vector3 GetTrackingPosition()
         {
-            return m_model != null ? m_model.TrackingPoint : transform.position;
+            return m_weaponModel != null ? m_weaponModel.TrackingPoint : transform.position;
         }
 
         protected void UpdateTargetingSolution()
         {
             Vector3 pos = GetTrackingPosition();
-            if (Math3D.TryGetInterception(pos, Vector3.zero, m_projectileSpeed, m_targetPawn.TrackingPoint, m_targetPawn.Velocity, 0.001f, out m_targetPosition, out m_targetTimeToIntercept))
+            if (Math3D.TryGetInterception(pos, Vector3.zero, m_attributes.projectileSpeed, m_targetPawn.TrackingPoint, m_targetPawn.Velocity, 0.001f, out m_targetPosition, out m_targetTimeToIntercept))
                 m_targetDistance = (m_targetPosition - pos).magnitude;
             else
                 m_targetDistance = -1f;
@@ -136,14 +148,14 @@ namespace Entities
 
         public void Attack(GameObject projectilePrefab, Vector3 target, ProjectileSettings settings)
         {
-            if (m_model != null)
-                m_model.Attack(projectilePrefab, target, settings);
+            if (m_weaponModel != null)
+                m_weaponModel.Attack(projectilePrefab, target, settings);
         }
 
         protected virtual void OnDrawGizmos()
         {
             Gizmos.color = Color.white;
-            Gizmos.DrawWireSphere(transform.position, m_range);
+            Gizmos.DrawWireSphere(transform.position, m_attributes.range);
             if (m_targetPawn != null)
             {
                 Vector3 pos = GetTrackingPosition();

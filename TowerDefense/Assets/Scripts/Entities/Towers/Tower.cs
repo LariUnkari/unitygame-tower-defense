@@ -14,8 +14,10 @@ namespace Entities
         public float m_initDuration = 1;
         protected float m_spawnTime;
 
-        public TowerBaseModel m_baseModel;
-        public TowerWeapon m_weapon;
+        public Transform m_weaponMount;
+        protected TowerWeapon m_weapon;
+        public Transform m_baseMount;
+        protected TowerBaseModel m_baseModel;
 
         public AudioSource m_audioSource;
         public AudioClip m_sfxOnSpawned;
@@ -37,8 +39,15 @@ namespace Entities
 
         protected virtual void Awake()
         {
-            if (m_baseModel) OnBaseModelSet();
-            if (m_weapon) OnWeaponSet();
+            if (m_baseModel == null)
+                SetBaseModel(m_baseMount.GetComponentInChildren<TowerBaseModel>());
+            else
+                OnBaseModelSet();
+
+            if (m_weapon == null)
+                SetWeapon(m_weaponMount.GetComponent<TowerWeapon>());
+            else
+                OnWeaponSet();
         }
 
         protected virtual void Start()
@@ -54,7 +63,7 @@ namespace Entities
         public virtual void SetBaseModel(TowerBaseModel baseModel)
         {
             m_baseModel = baseModel;
-            OnBaseModelSet();
+            if (m_baseModel != null) OnBaseModelSet();
         }
 
         protected virtual void OnBaseModelSet()
@@ -67,7 +76,7 @@ namespace Entities
         public virtual void SetWeapon(TowerWeapon weapon)
         {
             m_weapon = weapon;
-            OnWeaponSet();
+            if (m_weapon != null) OnWeaponSet();
         }
 
         protected virtual void OnWeaponSet()
@@ -148,7 +157,7 @@ namespace Entities
         {
             if (m_weapon != null)
             {
-                SpatialSearch.Result<Pawn> result = SpatialSearch.FindClosest(transform.position, m_weapon.m_range,
+                SpatialSearch.Result<Pawn> result = SpatialSearch.FindClosest(transform.position, m_weapon.m_attributes.range,
                     MissionManager.GetInstance().GetAllEnemies(), (Pawn pawn) => { return pawn.transform; });
 
                 if (result.item != null)

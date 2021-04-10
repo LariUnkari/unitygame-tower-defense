@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 067f19bd00e0635489ae0f4959175c13, type: 3}
+  m_Name: MuzzleEffectsPreset_LaserRed
+  m_EditorClassIdentifier: 
+  flashVFXPrefab: {fileID: 3522443384207584229, guid: 592eeb7198817e34989b8b478905e1eb,
+    type: 3}
+  flashSFXClip: {fileID: 8300000, guid: 321c57076d528934aa5e2ed5eb2798ce, type: 3}
+  flashScale: 1
+  flashTime: 0.1

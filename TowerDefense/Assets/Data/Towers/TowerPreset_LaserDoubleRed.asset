@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4018be2693c748f4da578ed5d536b9d9, type: 3}
+  m_Name: TowerPreset_LaserDoubleRed
+  m_EditorClassIdentifier: 
+  towerName: Double Laser
+  baseModel: {fileID: 5900714386549088475, guid: c15c0afe64225b94a9ba50efde25d13e,
+    type: 3}
+  weaponModel: {fileID: 1194160130658257073, guid: a0a7885867be7e5418c7e20f114389c2,
+    type: 3}
+  weaponPreset: {fileID: 11400000, guid: 57615c2265b25604baae810e2585c7c5, type: 2}
