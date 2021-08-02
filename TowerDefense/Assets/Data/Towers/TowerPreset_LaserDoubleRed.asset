@@ -13,6 +13,8 @@ MonoBehaviour:
   m_Name: TowerPreset_LaserDoubleRed
   m_EditorClassIdentifier: 
   towerName: Double Laser
+  buildCost: 300
+  buildCooldown: 10
   baseModel: {fileID: 5900714386549088475, guid: c15c0afe64225b94a9ba50efde25d13e,
     type: 3}
   weaponModel: {fileID: 1194160130658257073, guid: a0a7885867be7e5418c7e20f114389c2,

@@ -29,6 +29,9 @@ public class MissionManager : MonoBehaviour
 
     public MissionPreset m_testMission;
 
+    public int m_initialFunds = 500;
+    private int m_currentFunds;
+
     private Map m_map;
 
     private MissionState m_missionState;
@@ -40,6 +43,7 @@ public class MissionManager : MonoBehaviour
     public Map Map { get { return m_map; } }
     public MissionState MissionState { get { return m_missionState; } }
     public float MissionTime { get { return m_data.time; } }
+    public float PlayerFunds { get { return m_currentFunds; } }
 
     private void OnEnable()
     {
@@ -137,6 +141,8 @@ public class MissionManager : MonoBehaviour
 
     public void StartMission(MissionPreset preset)
     {
+        m_currentFunds = m_initialFunds;
+
         m_missionState = MissionState.Active;
         m_data = new MissionData(m_map, preset.settings, preset.waves);
         m_data.StartMission();
@@ -255,8 +261,13 @@ public class MissionManager : MonoBehaviour
         return m_data.AllEnemies;
     }
 
-    private void OnTowerSpawned(Entities.Tower tower)
+    private void OnTowerSpawned(Presets.TowerPreset preset, Entities.Tower tower)
     {
+        if (preset != null)
+        {
+            m_currentFunds -= preset.buildCost;
+        }
+
         m_data.OnTowerSpawned(tower);
     }
 

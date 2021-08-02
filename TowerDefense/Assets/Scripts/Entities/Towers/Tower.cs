@@ -214,7 +214,7 @@ namespace Entities
 
         protected virtual void OnMissionStarted()
         {
-            EventManager.EmitOnTowerSpawned(this);
+            EventManager.EmitOnTowerSpawned(null, this);
         }
     }
 }

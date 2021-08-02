@@ -9,7 +9,7 @@ public class TowerPresetDatabase : ScriptableObject
     private static TowerPresetDatabase s_instance;
 
     public GameObject prototype;
-    public TowerPreset[] towerPresets;
+    public Presets.TowerPreset[] towerPresets;
 
     public static TowerPresetDatabase GetInstance()
     {
@@ -31,7 +31,7 @@ public class TowerPresetDatabase : ScriptableObject
         return s_instance;
     }
 
-    public TowerPreset GetPreset(int index)
+    public Presets.TowerPreset GetPreset(int index)
     {
         if (index < 0 || index > towerPresets.Length)
             return null;
