@@ -9,13 +9,14 @@ public class ClickBuilder : MonoBehaviour
     public Camera m_camera;
 
     private int m_presetIndex = -1;
-    private TowerPreset m_towerPreset;
+    private Presets.TowerPreset m_towerPreset;
 
     private bool m_isPlacingPreset;
     private bool m_doUpdatePresetSelection;
     private bool m_areGUIStylesInitialized;
 
     private int m_uiSelectButtonSize = 100;
+    private int m_uiBuildCostLabelHeight = 22;
     private int m_uiCycleButtonSize = 30;
     private int m_uiElementMargin = 5;
     private int m_uiAreaPadding = 10;
@@ -26,11 +27,15 @@ public class ClickBuilder : MonoBehaviour
 
     private Vector3 m_targetPosition;
 
+    private Dictionary<int, float> m_towerBuildCooldowns;
+
     private void Awake()
     {
+        InitTowerDatabase();
+
         m_towerAreaRect = new Rect();
         m_towerAreaRect.width = m_uiSelectButtonSize + m_uiElementMargin * 4 + m_uiCycleButtonSize * 2;
-        m_towerAreaRect.height = m_uiSelectButtonSize + m_uiStateLabelHeight + m_uiElementMargin * 3;
+        m_towerAreaRect.height = m_uiSelectButtonSize + m_uiBuildCostLabelHeight + m_uiStateLabelHeight + m_uiElementMargin * 4;
     }
 
     private void Start()
@@ -40,6 +45,12 @@ public class ClickBuilder : MonoBehaviour
 
     private void Update()
     {
+        foreach (Presets.TowerPreset towerPreset in TowerPresetDatabase.GetInstance().towerPresets)
+        {
+            if (m_towerBuildCooldowns[towerPreset.GetInstanceID()] > 0f)
+                m_towerBuildCooldowns[towerPreset.GetInstanceID()] -= Time.deltaTime;
+        }
+
         if (m_isPlacingPreset && Input.GetMouseButtonDown(0))
         {
             Map map = MissionManager.GetInstance().Map;
@@ -52,8 +63,26 @@ public class ClickBuilder : MonoBehaviour
                 if (MissionManager.GetInstance().MissionState == MissionState.Active)
                 {
                     m_towerPreset = TowerPresetDatabase.GetInstance().GetPreset(m_presetIndex);
-                    if (m_towerPreset != null)
-                        PlaceTowerFromPreset(m_towerPreset, m_targetPosition);
+
+                    if (m_towerPreset == null)
+                        return;
+
+                    float cooldown = 0f;
+                    m_towerBuildCooldowns.TryGetValue(m_towerPreset.GetInstanceID(), out cooldown);
+
+                    if (cooldown > 0f)
+                    {
+                        DBGLogger.LogWarning(string.Format("Can't build preset, cooldown remains: {0}s", cooldown), this, this);
+                        return;
+                    }
+
+                    if (m_towerPreset.buildCost > MissionManager.GetInstance().PlayerFunds)
+                    {
+                        DBGLogger.LogWarning(string.Format("Can't build preset, cost {0} > {1} funds", m_towerPreset.buildCost, MissionManager.GetInstance().PlayerFunds), this, this);
+                        return;
+                    }
+
+                    PlaceTowerFromPreset(m_towerPreset, m_targetPosition);
                 }
             }
         }
@@ -84,14 +113,7 @@ public class ClickBuilder : MonoBehaviour
             m_presetIndex--;
         }
 
-        if (GUI.Button(new Rect(
-            m_towerAreaRect.center.x - m_uiSelectButtonSize / 2f,
-            m_towerAreaRect.yMin + m_uiElementMargin,
-            m_uiSelectButtonSize, m_uiSelectButtonSize),
-            m_towerPreset == null ? "NONE" : (m_towerPreset.towerName.Length > 0 ? m_towerPreset.towerName : m_towerPreset.name)))
-        {
-            m_isPlacingPreset = !m_isPlacingPreset;
-        }
+        DrawPresetButton();
 
         if (GUI.Button(new Rect(
             m_towerAreaRect.xMax - m_uiElementMargin - m_uiCycleButtonSize,
@@ -104,7 +126,7 @@ public class ClickBuilder : MonoBehaviour
 
         GUI.Label(new Rect(
             m_towerAreaRect.center.x - (m_uiSelectButtonSize + m_uiCycleButtonSize) / 2f,
-            m_towerAreaRect.yMin + m_uiSelectButtonSize + m_uiElementMargin * 2,
+            m_towerAreaRect.yMin + m_uiSelectButtonSize + m_uiBuildCostLabelHeight + m_uiElementMargin * 3,
             m_uiSelectButtonSize + m_uiCycleButtonSize, m_uiStateLabelHeight),
             m_isPlacingPreset ? "Place Tower" : "Select Tower", m_styleStateLabel);
 
@@ -116,13 +138,59 @@ public class ClickBuilder : MonoBehaviour
         }
     }
 
+    private void DrawPresetButton()
+    {
+        string towerName = "ERROR_NoTower";
+        float buildCooldown = 0f;
+        int towerCost = -1;
+
+        if (m_towerPreset)
+        {
+            towerName = m_towerPreset.towerName.Length > 0 ? m_towerPreset.towerName : m_towerPreset.name;
+            towerCost = m_towerPreset.buildCost;
+
+            if (!m_towerBuildCooldowns.TryGetValue(m_towerPreset.GetInstanceID(), out buildCooldown))
+            {
+                DBGLogger.LogError(string.Format("Unable to find build cooldown for tower preset {0} '{1}'", m_towerPreset.GetInstanceID(), towerName), this, this);
+            }
+        }
+
+        if (GUI.Button(new Rect(
+            m_towerAreaRect.center.x - m_uiSelectButtonSize / 2f,
+            m_towerAreaRect.yMin + m_uiElementMargin,
+            m_uiSelectButtonSize, m_uiSelectButtonSize),
+            string.Format("{0}\n{1}", towerName, buildCooldown > 0 ? string.Format("({0}s)", Mathf.Ceil(buildCooldown)) : "READY")))
+        {
+            m_isPlacingPreset = !m_isPlacingPreset;
+        }
+
+        GUI.Label(new Rect(
+            m_towerAreaRect.center.x - m_uiSelectButtonSize / 2f,
+            m_towerAreaRect.yMin + + m_uiSelectButtonSize + m_uiElementMargin * 2,
+            m_uiSelectButtonSize, m_uiBuildCostLabelHeight),
+            towerCost >= 0 ? string.Format("Cost: {0}", towerCost) : "FREE");
+    }
+
+    private void InitTowerDatabase()
+    {
+        m_towerBuildCooldowns = new Dictionary<int, float>();
+
+        foreach (Presets.TowerPreset preset in TowerPresetDatabase.GetInstance().towerPresets)
+        {
+            m_towerBuildCooldowns[preset.GetInstanceID()] = 0f;
+        }
+    }
+
+
     private int GetTowerPresetIndex(int index)
     {
         return TowerPresetDatabase.GetInstance().GetPresetIndexRelative(index);
     }
 
-    private void PlaceTowerFromPreset(TowerPreset towerPreset, Vector3 position)
+    private void PlaceTowerFromPreset(Presets.TowerPreset towerPreset, Vector3 position)
     {
+        m_towerBuildCooldowns[towerPreset.GetInstanceID()] = towerPreset.buildCooldown;
+
         GameObject go = Instantiate(TowerPresetDatabase.GetInstance().prototype, position, Quaternion.identity);
         Tower tower = go.GetComponent<Tower>();
 
@@ -137,6 +205,6 @@ public class ClickBuilder : MonoBehaviour
         weapon.SetFromPreset(towerPreset.weaponPreset);
         tower.SetWeapon(weapon);
 
-        EventManager.EmitOnTowerSpawned(tower);
+        EventManager.EmitOnTowerSpawned(towerPreset, tower);
     }
 }
